@@ -1,0 +1,1228 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex, nofollow">
+<meta name="referrer" content="no-referrer">
+<meta name="theme-color" content="#fbf4f5">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="missnails">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<link rel="apple-touch-icon" href="icon-180.png">
+<link rel="icon" type="image/png" href="icon-192.png">
+<link rel="manifest" href="manifest.webmanifest">
+<title>missnails para Paula</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,600;1,400&family=Great+Vibes&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<style>
+/* Layout: app de una columna (máx. 560px) con barra de pestañas abajo y hojas que suben desde abajo */
+:root {
+  --bg: #fbf4f5;
+  --surface: #ffffff;
+  --surface2: #f7e8ec;
+  --line: #efd9de;
+  --text: #25304f;
+  --muted: #87707f;
+  --accent: #c8456f;
+  --accent-ink: #ffffff;
+  --ok: #2f7d5b;
+  --shade: rgba(37, 20, 35, .42);
+  --display: "Playfair Display", Georgia, serif;
+  --script: "Great Vibes", "Snell Roundhand", cursive;
+  --sans: "Inter", system-ui, -apple-system, "Segoe UI", sans-serif;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #141016; --surface: #1e1820; --surface2: #2a2130; --line: #3a2e3d; --text: #f3e9ee; --muted: #b59fae;
+    --accent: #e57399; --accent-ink: #1a0f14; --ok: #6cc79c; --shade: rgba(0, 0, 0, .6); color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #141016; --surface: #1e1820; --surface2: #2a2130; --line: #3a2e3d; --text: #f3e9ee; --muted: #b59fae;
+  --accent: #e57399; --accent-ink: #1a0f14; --ok: #6cc79c; --shade: rgba(0, 0, 0, .6); color-scheme: dark;
+}
+
+* { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+body { background: var(--bg); color: var(--text); font-family: var(--sans); font-weight: 400; font-size: 15px; line-height: 1.5; }
+#app { max-width: 560px; margin: 0 auto; padding: 18px 16px calc(96px + env(safe-area-inset-bottom, 0px)); }
+h1, h2, h3 { font-family: var(--display); font-weight: 500; margin: 0; text-wrap: balance; }
+h1 { font-size: 32px; line-height: 1.1; }
+h2 { font-size: 20px; }
+.script { font-family: var(--script); font-weight: 400; color: var(--accent); font-size: 1.2em; }
+.muted { color: var(--muted); }
+small, .small { font-size: 13px; }
+a { color: var(--accent); }
+.num { font-variant-numeric: tabular-nums; }
+.stack { display: grid; gap: 22px; }
+.row { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
+.between { display: flex; justify-content: space-between; align-items: center; gap: 12px; }
+.lbl { font-size: 12px; text-transform: uppercase; letter-spacing: .1em; color: var(--muted); font-weight: 600; }
+
+button { font: inherit; color: inherit; cursor: pointer; border: 0; background: none; padding: 0; }
+button:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-visible, label.upload:focus-within { outline: 2px solid var(--accent); outline-offset: 2px; }
+.btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; border-radius: 999px; padding: 11px 18px; font-weight: 500; border: 1px solid var(--line); background: var(--surface); transition: transform .12s; }
+.btn:active, .btn-main:active { transform: scale(.97); }
+.btn-main { display: inline-flex; align-items: center; justify-content: center; gap: 8px; border-radius: 999px; padding: 14px 22px; font-weight: 600; background: var(--accent); color: var(--accent-ink); font-size: 16px; transition: transform .12s; }
+.btn-main.full, .btn.full { width: 100%; }
+.btn-main.big { padding: 18px 22px; font-size: 18px; }
+.btn.danger { color: #c0392b; border-color: currentColor; }
+.btn.sm { padding: 7px 13px; font-size: 13px; }
+.link { color: var(--accent); font-weight: 500; }
+button:disabled { opacity: .4; cursor: not-allowed; }
+
+input[type="text"], input[type="tel"], input[type="date"], input[type="search"], input:not([type]), select, textarea {
+  font: inherit; color: var(--text); background: var(--surface); border: 1px solid var(--line); border-radius: 12px; padding: 11px 12px; width: 100%; font-size: 16px;
+}
+textarea { resize: vertical; min-height: 88px; }
+.fld { display: grid; gap: 6px; min-width: 0; }
+.fld > span:first-child { font-size: 13px; font-weight: 500; color: var(--muted); }
+.grid2 { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+
+/* Barra de pestañas */
+.tabs { position: fixed; left: 0; right: 0; bottom: 0; z-index: 20; background: var(--surface); border-top: 1px solid var(--line); padding: 6px 8px calc(8px + env(safe-area-inset-bottom, 0px)); }
+.tabs-in { max-width: 560px; margin: 0 auto; display: grid; grid-template-columns: repeat(4, 1fr); }
+.tab { display: grid; justify-items: center; gap: 2px; padding: 6px 0; font-size: 12px; font-weight: 500; color: var(--muted); }
+.tab svg { width: 24px; height: 24px; }
+.tab[aria-current="page"] { color: var(--accent); }
+
+/* Inicio */
+.hello .date { color: var(--muted); margin: 0 0 2px; text-transform: capitalize; }
+.stats { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; }
+.stat { background: var(--surface); border: 1px solid var(--line); border-radius: 16px; padding: 12px; min-width: 0; }
+.stat b { display: block; font-family: var(--display); font-size: 22px; font-weight: 500; font-variant-numeric: tabular-nums; line-height: 1.2; }
+.stat span { font-size: 12px; color: var(--muted); }
+.banner { background: var(--surface2); border-radius: 14px; padding: 12px 14px; font-size: 14px; display: grid; gap: 8px; }
+
+/* Listas */
+.list { background: var(--surface); border: 1px solid var(--line); border-radius: 18px; overflow: hidden; }
+.item { display: grid; grid-template-columns: auto 1fr auto; gap: 12px; align-items: center; padding: 12px 14px; width: 100%; text-align: left; border-bottom: 1px solid var(--line); }
+.item:last-child { border-bottom: 0; }
+.item .t { font-weight: 500; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.item .s { font-size: 13px; color: var(--muted); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.item > div { min-width: 0; }
+.avatar { width: 40px; height: 40px; border-radius: 50%; background: var(--surface2); color: var(--accent); display: grid; place-items: center; font-family: var(--display); font-size: 18px; }
+.pill { font-size: 12px; font-weight: 600; padding: 3px 9px; border-radius: 999px; background: var(--surface2); color: var(--text); white-space: nowrap; font-variant-numeric: tabular-nums; }
+.pill.gift { background: var(--accent); color: var(--accent-ink); }
+.pill.ok { background: transparent; color: var(--ok); border: 1px solid currentColor; }
+.empty { padding: 22px 16px; text-align: center; color: var(--muted); font-size: 14px; }
+.mini { width: 54px; height: 6px; border-radius: 4px; background: var(--surface2); overflow: hidden; margin-left: auto; margin-top: 6px; }
+.mini i { display: block; height: 100%; background: var(--accent); }
+
+/* Ficha */
+.topbar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px; }
+.topbar button { color: var(--accent); font-weight: 500; padding: 6px 0; }
+.alert { border: 1.5px solid var(--accent); border-radius: 16px; padding: 14px; display: grid; gap: 10px; background: var(--surface); }
+.alert b { font-weight: 600; }
+.card-actions { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; }
+
+/* Tarjeta de Google Wallet */
+.wcard { border-radius: 22px; overflow: hidden; box-shadow: 0 16px 34px -20px rgba(20, 0, 15, .55); max-width: 380px; margin: 0 auto; width: 100%; }
+.wc-head { display: flex; align-items: center; gap: 10px; padding: 16px 18px 0; font-size: 14px; font-weight: 500; }
+.wc-head img { width: 32px; height: 32px; border-radius: 50%; object-fit: cover; }
+.wc-title { font-size: 22px; padding: 8px 18px 0; line-height: 1.2; font-weight: 500; }
+.wc-fields { display: grid; grid-template-columns: 1fr auto; gap: 10px 14px; padding: 12px 18px 14px; }
+.wc-fields small { display: block; font-size: 11px; color: var(--m); font-weight: 500; }
+.wc-fields b { font-weight: 500; font-size: 16px; font-variant-numeric: tabular-nums; }
+.wc-fields .r { text-align: right; }
+.wc-fields .wide { grid-column: 1 / -1; font-size: 14px; }
+.wc-hero { display: block; width: 100%; height: auto; aspect-ratio: 1032 / 336; }
+.nocard { border: 1.5px dashed var(--line); border-radius: 22px; padding: 26px 18px; text-align: center; display: grid; gap: 12px; justify-items: center; color: var(--muted); }
+
+/* Hoja inferior */
+.shade { position: fixed; inset: 0; background: var(--shade); z-index: 40; display: flex; align-items: flex-end; justify-content: center; }
+.sheet { background: var(--bg); width: 100%; max-width: 560px; max-height: 92%; border-radius: 22px 22px 0 0; display: flex; flex-direction: column; animation: up .28s cubic-bezier(.2, .9, .3, 1); }
+@keyframes up { from { transform: translateY(40px); opacity: .4; } to { transform: none; opacity: 1; } }
+.sheet-head { display: flex; justify-content: space-between; align-items: center; padding: 16px 18px 10px; border-bottom: 1px solid var(--line); }
+.sheet-head button { color: var(--accent); font-weight: 500; }
+.sheet-body { overflow-y: auto; padding: 16px 18px; display: grid; gap: 18px; -webkit-overflow-scrolling: touch; }
+.sheet-foot { padding: 12px 18px calc(14px + env(safe-area-inset-bottom, 0px)); border-top: 1px solid var(--line); display: grid; gap: 8px; }
+
+.opts { display: grid; gap: 6px; }
+.grp { font-size: 12px; font-weight: 600; color: var(--muted); margin-top: 6px; }
+.opt { display: flex; justify-content: space-between; gap: 10px; width: 100%; text-align: left; padding: 11px 14px; border-radius: 12px; border: 1px solid var(--line); background: var(--surface); }
+.opt[aria-pressed="true"] { border-color: var(--accent); box-shadow: inset 0 0 0 1px var(--accent); font-weight: 500; }
+.opt .p { font-variant-numeric: tabular-nums; color: var(--muted); }
+.chips { display: flex; flex-wrap: wrap; gap: 8px; }
+.chip { padding: 8px 14px; border-radius: 999px; border: 1px solid var(--line); background: var(--surface); font-size: 14px; font-weight: 500; }
+.chip[aria-pressed="true"] { background: var(--accent); border-color: var(--accent); color: var(--accent-ink); }
+.check { display: flex; gap: 10px; align-items: center; font-size: 15px; }
+.check input { width: 20px; height: 20px; accent-color: var(--accent); }
+.stampbox { background: var(--surface); border: 1px solid var(--line); border-radius: 14px; padding: 12px 14px; display: grid; gap: 8px; }
+.switch { display: flex; justify-content: space-between; align-items: center; gap: 12px; font-weight: 500; }
+.switch input { appearance: none; -webkit-appearance: none; width: 50px; height: 30px; border-radius: 999px; background: var(--line); position: relative; cursor: pointer; transition: background .2s; flex: none; margin: 0; }
+.switch input::after { content: ""; position: absolute; top: 3px; left: 3px; width: 24px; height: 24px; border-radius: 50%; background: #fff; box-shadow: 0 1px 3px rgba(0,0,0,.3); transition: transform .2s; }
+.switch input:checked { background: var(--accent); }
+.switch input:checked::after { transform: translateX(20px); }
+
+.swatches { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
+.swatch { border-radius: 12px; padding: 10px 6px; font-size: 13px; font-weight: 500; border: 2px solid transparent; display: grid; justify-items: center; gap: 6px; }
+.swatch i { width: 18px; height: 18px; border-radius: 50%; display: block; }
+.swatch[aria-pressed="true"] { border-color: var(--accent); }
+.colorrow { display: flex; align-items: center; gap: 12px; }
+input[type="color"] { width: 48px; height: 36px; border: 1px solid var(--line); border-radius: 10px; padding: 2px; background: var(--surface); }
+.dot { width: 34px; height: 34px; border-radius: 50%; border: 2px solid var(--line); }
+.dot[aria-pressed="true"] { outline: 2px solid var(--accent); outline-offset: 2px; }
+.thumbs { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
+.thumb { aspect-ratio: 1032 / 336; border-radius: 10px; background: var(--surface2) center / cover no-repeat; border: 2px solid transparent; font-size: 12px; color: var(--muted); display: grid; place-items: center; position: relative; }
+.thumb[aria-pressed="true"] { border-color: var(--accent); }
+.thumb .x { position: absolute; top: -8px; right: -8px; width: 24px; height: 24px; border-radius: 50%; background: var(--text); color: var(--bg); font-size: 14px; line-height: 24px; }
+label.upload { border: 1.5px dashed var(--line); cursor: pointer; }
+label.upload input { position: absolute; opacity: 0; width: 1px; height: 1px; }
+.qrwrap { background: #fff; padding: 16px; border-radius: 18px; width: 252px; height: 252px; margin: 0 auto; display: grid; place-items: center; }
+.qrwrap img, .qrwrap canvas { display: block; width: 220px !important; height: 220px !important; }
+
+/* Agenda */
+.weeknav { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+.weeknav .arrow { width: 40px; height: 40px; border-radius: 50%; border: 1px solid var(--line); background: var(--surface); font-size: 20px; color: var(--accent); }
+.days { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 4px; }
+.day { display: grid; justify-items: center; gap: 2px; padding: 8px 0 6px; border-radius: 14px; font-size: 12px; color: var(--muted); font-weight: 500; }
+.day b { font-size: 17px; color: var(--text); font-weight: 600; font-variant-numeric: tabular-nums; }
+.day i { width: 5px; height: 5px; border-radius: 50%; background: transparent; }
+.day i.on { background: var(--accent); }
+.day.today b { color: var(--accent); }
+.day[aria-pressed="true"] { background: var(--accent); color: var(--accent-ink); }
+.day[aria-pressed="true"] b { color: var(--accent-ink); }
+.day[aria-pressed="true"] i.on { background: var(--accent-ink); }
+.ev { display: grid; grid-template-columns: 52px 1fr auto; gap: 12px; align-items: center; padding: 12px 14px; border-bottom: 1px solid var(--line); }
+.ev:last-child { border-bottom: 0; }
+.ev > div { min-width: 0; }
+.ev-time { font-variant-numeric: tabular-nums; font-weight: 600; line-height: 1.25; }
+.ev-time span { font-weight: 400; color: var(--muted); font-size: 13px; }
+.ev .t { font-weight: 500; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.ev .s { font-size: 13px; color: var(--muted); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.ev.block { opacity: .6; }
+.ev.done .t { text-decoration: line-through; text-decoration-color: var(--muted); }
+.status { font-size: 13px; color: var(--muted); display: flex; justify-content: space-between; gap: 10px; align-items: center; }
+.status.err { color: #c0392b; }
+.info { background: var(--surface2); border-radius: 12px; padding: 10px 12px; font-size: 14px; }
+.toast { position: fixed; left: 50%; bottom: calc(86px + env(safe-area-inset-bottom, 0px)); transform: translateX(-50%); z-index: 60; background: var(--text); color: var(--bg); padding: 12px 18px; border-radius: 14px; font-size: 14px; font-weight: 500; max-width: calc(100% - 32px); width: max-content; box-shadow: 0 10px 30px -10px rgba(0,0,0,.4); animation: up .25s; }
+.sec { display: grid; gap: 12px; }
+.panel { background: var(--surface); border: 1px solid var(--line); border-radius: 18px; padding: 16px; display: grid; gap: 14px; }
+
+@media (prefers-reduced-motion: reduce) { .sheet, .toast { animation: none; } .btn, .btn-main, .switch input, .switch input::after { transition: none; } }
+</style>
+</head>
+<body>
+
+
+<div id="app"></div>
+<nav class="tabs" id="tabs" aria-label="Secciones"></nav>
+<div id="sheet-root"></div>
+<div id="toast-root" aria-live="polite"></div>
+
+<script>
+(function () {
+  'use strict';
+  var LOGO = 'data:image/jpeg;base64,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AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAP/9oADAMBAAIAAwAAACEAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAACAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAEAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAQEAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAANl8oAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAmvCKpXEIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAADUWaMAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABYMAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABUAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAQgQAQABzzwggAAwxzzwgAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABTzwijAADTwwxjDDDTwgAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAADzzSAAABTzzQAAADjzwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABTygAAABDyiAAAABDygAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAADzyAAAAADzwAAAAADygAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABTygAAAATRQAAAAATzgAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABTygAAABTzwAAAABTywAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABTygAAAChggAAAAATywAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAADzwgAABATzgAAAABTywAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABzwgAARgDzgAAAABTygAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAADTwAACgADzwAAAAATzgAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABTyAAiABTzwAAAAADygAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABzyhhgABDzgAAAAADzwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAADzyDAAAADzwAAAABDzgAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABzhAAAAADywAAAABDywAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAACRgAAAAADwygAAAAzzggAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABCACAAABCDACCAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAgAAAAAAAAAAAAABQiAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAQgRSgCzQAAAABQwADTRAABwAgBQyAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABQADBSiRhCwQAACxQBgzgQCDQQgBCSAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAQAhBAhzBCyAwAgQAABABAAhjyAQiSgAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAD/2gAMAwEAAgADAAAAEIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAEGAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAFgAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAC4gAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAADq4wgAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABt0IFWuKgAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAM3Y4AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAADywAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAFQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAADDHIAGEANBAAAJGINBAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAADAAIDMEBCEDBFMMAAEIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAECAAIAAADAIBAAAALAJAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAFIAEAAAAFAFAAAAAEAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAFKAAAAAAECKAAAAAFAEKAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABIACAAAABNMKAAAAAAFKAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAFIAKAAAAFCAKAAAAEABKAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAFKAAAAAANPAKAAAAEAAKAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAFKAIAAADBAAKAAAABAAKAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAACACAABABAAKAAAAEAEKAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAFIAKAAFAEAAKAAAAFABKAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABIACACIABAAKAAAAFAAKAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAFIACDAAAEABKAAAABAEKAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAFCAPGAAAFAEKAAAAFABKAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAEBBIAAAAEAEKAAAAAAAKAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAACEAAAAACAEGAAAAHAEJAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAIAMEEAAAIIMAAIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAECAAAAAAAAAAAAAAFCJAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAEDDFECDKDLLAAANHAFLDGCFBBCACBAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAFEKDFCFKFMMAAADEAJMPPKHJIKAEOAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABAKLFANIIOABBCGFKMNCNKMACLFEMIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAEAEIIAAAAMAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA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';
+  var KEY = 'missnails-paula-v1';
+
+  // ---------- Datos ----------
+  var PRESETS = [
+    { name: 'Noche', bg: '#0d0c0e', ink: '#dcc39b' },
+    { name: 'Rosa', bg: '#f4bfca', ink: '#c8456f' },
+    { name: 'Marino', bg: '#25304f', ink: '#f4bfca' },
+    { name: 'Nude', bg: '#e8d5c4', ink: '#8a5a44' },
+    { name: 'Frambuesa', bg: '#c8456f', ink: '#ffffff' },
+    { name: 'Blanco', bg: '#fbf7f4', ink: '#25304f' }
+  ];
+  var INKS = ['#dcc39b', '#ffffff', '#c8456f', '#25304f', '#111111'];
+  var DESIGN = [[0, 'Sencillo'], [3, '+3 €'], [5, '+5 €'], [7, '+7 €'], [10, '+10 €']];
+  var METHODS = ['Efectivo', 'Bizum', 'Tarjeta'];
+
+  function defaults() {
+    return {
+      v: 1,
+      settings: { title: 'Pretty nails, happy girl', total: 10, r1: 5, g1: 'Regalo 1', g2: 'Regalo 2', style: { bg: '#0d0c0e', ink: '#dcc39b', img: null } },
+      services: [
+        { id: 'semi-c', cat: 'Semipermanente con refuerzo', name: 'Semipermanente · uñas cortas', price: 18, stamp: true },
+        { id: 'semi-l', cat: 'Semipermanente con refuerzo', name: 'Semipermanente · uñas largas', price: 23, stamp: true },
+        { id: 'ext-s', cat: 'Extensión de uñas', name: 'Extensión · talla S', price: 26, stamp: true },
+        { id: 'ext-m', cat: 'Extensión de uñas', name: 'Extensión · talla M', price: 28, stamp: true },
+        { id: 'ext-l', cat: 'Extensión de uñas', name: 'Extensión · talla L', price: 33, stamp: true },
+        { id: 'oni-t', cat: 'Onicofagia', name: 'Tratamiento de onicofagia', price: 26, stamp: true },
+        { id: 'oni-b', cat: 'Onicofagia', name: 'Mantenimiento · en buen estado', price: 18, stamp: true },
+        { id: 'oni-r', cat: 'Onicofagia', name: 'Mantenimiento · con reconstrucción', price: 20, stamp: true },
+        { id: 'ret', cat: 'Otros', name: 'Retirada', price: 5, stamp: false }
+      ],
+      clients: [], cards: [], visits: [], backgrounds: []
+    };
+  }
+
+  function seedExamples(D) {
+    var people = [
+      { name: 'Lucía Martín', phone: '600 000 001', insta: '@lucia.ejemplo', note: 'Le gustan los tonos nude. Cutícula sensible, ir con cuidado.', stamps: 4, svc: 'semi-l' },
+      { name: 'Marta Ruiz', phone: '600 000 002', insta: '@marta.ejemplo', note: 'Siempre pide diseño con brillos.', stamps: 5, svc: 'ext-m' },
+      { name: 'Ana López', phone: '600 000 003', note: 'Tratamiento de onicofagia desde junio. Va muy bien.', stamps: 10, svc: 'oni-b' }
+    ];
+    people.forEach(function (p, pi) {
+      var c = { id: uid(), name: p.name, phone: p.phone, insta: p.insta || '', note: p.note, created: daysAgo(30 * p.stamps), ejemplo: true };
+      D.clients.push(c);
+      var card = newCardObj(D, c.id, 1, uid());
+      D.cards.push(card);
+      var svc = D.services.filter(function (s) { return s.id === p.svc; })[0];
+      for (var i = p.stamps; i >= 1; i--) {
+        var d = daysAgo(i * 21 - 18 + pi * 3);
+        var v = { id: uid(), clientId: c.id, date: d, serviceId: svc.id, serviceName: svc.name, diseno: i % 3 === 0 ? 5 : 0, retirada: i % 2 === 0, method: METHODS[i % 3], note: '', stamped: true, cardId: card.id };
+        v.amount = svc.price + v.diseno + (v.retirada ? 5 : 0);
+        D.visits.push(v);
+      }
+      card.stamps = p.stamps;
+    });
+    return D;
+  }
+
+  // Revisa los datos que llegan de fuera (copia restaurada o guardada) para que nada pueda colar
+  // código en la app: ids, colores, números y fotos tienen que tener la forma esperada.
+  function cleanData(d) {
+    if (!d || d.v !== 1 || typeof d.settings !== 'object' || !d.settings) return null;
+    var ID = /^[A-Za-z0-9_-]{1,40}$/, HEX = /^#[0-9a-fA-F]{6}$/, IMG = /^data:image\/jpeg;base64,[A-Za-z0-9+\/=]+$/, DATE = /^\d{4}-\d{2}-\d{2}$/;
+    function arr(a) { return Array.isArray(a) ? a.filter(function (x) { return x && typeof x === 'object'; }) : []; }
+    function int(v, def, min, max) { v = Math.round(Number(v)); return isFinite(v) ? Math.min(max, Math.max(min, v)) : def; }
+    function money(v) { v = Number(v); return isFinite(v) ? Math.round(v * 100) / 100 : 0; }
+    function str(v, max) { return String(v == null ? '' : v).slice(0, max); }
+    function style(s) { s = s || {}; return { bg: HEX.test(s.bg) ? s.bg : '#0d0c0e', ink: HEX.test(s.ink) ? s.ink : '#dcc39b', img: ID.test(s.img) ? s.img : null }; }
+    var st = d.settings, out = { v: 1, settings: {
+      title: str(st.title, 40), total: int(st.total, 10, 2, 20), r1: int(st.r1, 5, 1, 19), g1: str(st.g1, 40), g2: str(st.g2, 40), style: style(st.style) } };
+    out.services = arr(d.services).filter(function (s) { return ID.test(s.id); }).map(function (s) { return { id: s.id, cat: str(s.cat, 60), name: str(s.name, 60), price: money(s.price), stamp: !!s.stamp }; });
+    out.clients = arr(d.clients).filter(function (c) { return ID.test(c.id); }).map(function (c) {
+      return { id: c.id, name: str(c.name, 60), phone: str(c.phone, 20), insta: str(c.insta, 60), note: str(c.note, 5000), created: DATE.test(c.created) ? c.created : today(), ejemplo: !!c.ejemplo };
+    });
+    out.cards = arr(d.cards).filter(function (c) { return ID.test(c.id) && ID.test(c.clientId) && ID.test(c.passId); }).map(function (c) {
+      var total = int(c.total, 10, 2, 20);
+      return { id: c.id, passId: c.passId, clientId: c.clientId, n: int(c.n, 1, 1, 999), stamps: int(c.stamps, 0, 0, total), total: total, r1: int(c.r1, 5, 1, total), g1: str(c.g1, 40), g2: str(c.g2, 40),
+        style: style(c.style), status: c.status === 'cerrada' ? 'cerrada' : 'activa', created: DATE.test(c.created) ? c.created : today(), closed: DATE.test(c.closed) ? c.closed : null, r1Given: !!c.r1Given, r2Given: !!c.r2Given };
+    });
+    out.visits = arr(d.visits).filter(function (v) { return ID.test(v.id) && ID.test(v.clientId) && DATE.test(v.date); }).map(function (v) {
+      var o = { id: v.id, clientId: v.clientId, date: v.date, serviceId: ID.test(v.serviceId) ? v.serviceId : '', serviceName: str(v.serviceName, 60), diseno: int(v.diseno, 0, 0, 100), retirada: !!v.retirada,
+        amount: money(v.amount), method: str(v.method, 20), note: str(v.note, 1000), stamped: !!v.stamped, cardId: ID.test(v.cardId) ? v.cardId : null };
+      if (typeof v.eventKey === 'string') o.eventKey = v.eventKey.slice(0, 300);
+      return o;
+    });
+    out.backgrounds = arr(d.backgrounds).filter(function (b) { return ID.test(b.id) && typeof b.data === 'string' && IMG.test(b.data); }).map(function (b) { return { id: b.id, data: b.data }; });
+    return out;
+  }
+
+  function load() {
+    try {
+      var raw = localStorage.getItem(KEY);
+      if (raw) { var d = cleanData(JSON.parse(raw)); if (d) return d; }
+    } catch (e) {}
+    return seedExamples(defaults());
+  }
+  var S = load();
+  function save() {
+    try { localStorage.setItem(KEY, JSON.stringify(S)); }
+    catch (e) { toast('No se ha podido guardar. Puede que el móvil no tenga espacio.'); }
+  }
+
+  // ---------- Utilidades ----------
+  function uid() { return Math.random().toString(36).slice(2, 10) + Date.now().toString(36).slice(-3); }
+  function esc(s) { return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]; }); }
+  function pad(n) { return String(n).padStart(2, '0'); }
+  function iso(d) { return d.getFullYear() + '-' + pad(d.getMonth() + 1) + '-' + pad(d.getDate()); }
+  function today() { return iso(new Date()); }
+  function daysAgo(n) { var d = new Date(); d.setDate(d.getDate() - n); return iso(d); }
+  function parseD(s) { var p = s.split('-').map(Number); return new Date(p[0], p[1] - 1, p[2]); }
+  var fmtShort = new Intl.DateTimeFormat('es-ES', { day: 'numeric', month: 'short' });
+  var fmtLong = new Intl.DateTimeFormat('es-ES', { weekday: 'long', day: 'numeric', month: 'long' });
+  var fmtMonth = new Intl.DateTimeFormat('es-ES', { month: 'long' });
+  var fmtEur = new Intl.NumberFormat('es-ES', { style: 'currency', currency: 'EUR', maximumFractionDigits: 2, minimumFractionDigits: 0 });
+  function dShort(s) { return fmtShort.format(parseD(s)).replace('.', ''); }
+  function eur(n) { return fmtEur.format(n || 0); }
+  function num(v) { var n = parseFloat(String(v).replace(',', '.')); return isNaN(n) ? 0 : n; }
+  function $(sel) { return document.querySelector(sel); }
+  function byId(list, id) { for (var i = 0; i < list.length; i++) if (list[i].id === id) return list[i]; return null; }
+  function client(id) { return byId(S.clients, id); }
+  function first(name) { return String(name || 'Clienta').split(' ')[0]; }
+  function initial(name) { return esc(String(name || '?').trim().charAt(0).toUpperCase()); }
+  function waLink(phone) { var d = String(phone || '').replace(/\D/g, ''); if (d.length === 9) d = '34' + d; return d ? 'https://wa.me/' + d : ''; }
+  function isDark(hex) {
+    var h = hex.replace('#', ''); if (h.length === 3) h = h.replace(/./g, '$&$&');
+    var r = parseInt(h.substr(0, 2), 16) / 255, g = parseInt(h.substr(2, 2), 16) / 255, b = parseInt(h.substr(4, 2), 16) / 255;
+    return 0.2126 * r + 0.7152 * g + 0.0722 * b < 0.55;
+  }
+  function rgba(hex, a) {
+    var h = hex.replace('#', ''); if (h.length === 3) h = h.replace(/./g, '$&$&');
+    return 'rgba(' + parseInt(h.substr(0, 2), 16) + ',' + parseInt(h.substr(2, 2), 16) + ',' + parseInt(h.substr(4, 2), 16) + ',' + a + ')';
+  }
+  function copyStyle(st) { return { bg: st.bg, ink: st.ink, img: st.img || null }; }
+  function faltan(n) { return 'Te ' + (n === 1 ? 'falta 1 sello' : 'faltan ' + n + ' sellos'); }
+
+  // ---------- Tarjetas ----------
+  function newCardObj(D, clientId, n, passId) {
+    var st = D.settings;
+    return { id: uid(), passId: passId, clientId: clientId, n: n, stamps: 0, total: st.total, r1: st.r1, g1: st.g1, g2: st.g2, style: copyStyle(st.style), status: 'activa', created: today(), closed: null, r1Given: false, r2Given: false };
+  }
+  function activeCard(clientId) { for (var i = 0; i < S.cards.length; i++) if (S.cards[i].clientId === clientId && S.cards[i].status === 'activa') return S.cards[i]; return null; }
+  function clientCards(clientId) { return S.cards.filter(function (c) { return c.clientId === clientId; }); }
+  function createCard(clientId) { var c = newCardObj(S, clientId, clientCards(clientId).length + 1, uid()); S.cards.push(c); return c; }
+  // Tarjeta completa: "a 0" sigue siendo la misma tarjeta en el móvil (mismo passId); "nueva" cambia de tarjeta y de QR.
+  function closeCard(card, keepPass) {
+    card.status = 'cerrada'; card.closed = today();
+    var c = newCardObj(S, card.clientId, card.n + 1, keepPass ? card.passId : uid());
+    c.style = copyStyle(card.style);
+    S.cards.push(c); return c;
+  }
+  function isFull(card) { return card.stamps >= card.total; }
+  function pendingRewards(clientId) {
+    var out = [];
+    S.cards.forEach(function (c) {
+      if (clientId && c.clientId !== clientId) return;
+      if (c.stamps >= c.r1 && !c.r1Given) out.push({ card: c, w: 1, gift: c.g1 });
+      if (c.stamps >= c.total && !c.r2Given) out.push({ card: c, w: 2, gift: c.g2 });
+    });
+    return out;
+  }
+  function nextText(c) {
+    if (c.stamps >= c.total) return ['Tarjeta completa', '🎁 ' + c.g2 + ' · enséñasela a Paula'];
+    if (c.stamps < c.r1) return ['Próximo regalo', faltan(c.r1 - c.stamps) + ' para: ' + c.g1];
+    return ['Próximo regalo', (c.stamps === c.r1 ? '🎁 ¡' + c.g1 + '! · ' : '') + faltan(c.total - c.stamps) + ' para: ' + c.g2];
+  }
+
+  function starPath(cx, cy, r) {
+    var q = r * 0.16;
+    return 'M' + cx + ' ' + (cy - r) + 'Q' + (cx + q) + ' ' + (cy - q) + ' ' + (cx + r) + ' ' + cy + 'Q' + (cx + q) + ' ' + (cy + q) + ' ' + cx + ' ' + (cy + r) +
+      'Q' + (cx - q) + ' ' + (cy + q) + ' ' + (cx - r) + ' ' + cy + 'Q' + (cx - q) + ' ' + (cy - q) + ' ' + cx + ' ' + (cy - r) + 'Z';
+  }
+  function giftSVG(cx, cy, s, color) {
+    var w = s * 1.1, h = s * 0.8, top = cy - h / 2 + s * 0.08, sw = s * 0.08;
+    var a = 'fill="none" stroke="' + color + '" stroke-width="' + sw + '" stroke-linejoin="round"';
+    return '<rect x="' + (cx - w / 2) + '" y="' + top + '" width="' + w + '" height="' + h + '" rx="' + s * 0.08 + '" ' + a + '/>' +
+      '<rect x="' + (cx - w * 0.58) + '" y="' + (top - s * 0.24) + '" width="' + w * 1.16 + '" height="' + s * 0.26 + '" rx="' + s * 0.06 + '" ' + a + '/>' +
+      '<line x1="' + cx + '" y1="' + (top - s * 0.24) + '" x2="' + cx + '" y2="' + (top + h) + '" stroke="' + color + '" stroke-width="' + s * 0.1 + '"/>' +
+      '<path d="M' + cx + ' ' + (top - s * 0.24) + 'C' + (cx - s * 0.5) + ' ' + (top - s * 0.75) + ' ' + (cx - s * 0.55) + ' ' + (top - s * 0.1) + ' ' + cx + ' ' + (top - s * 0.24) +
+      'C' + (cx + s * 0.55) + ' ' + (top - s * 0.1) + ' ' + (cx + s * 0.5) + ' ' + (top - s * 0.75) + ' ' + cx + ' ' + (top - s * 0.24) + 'Z" ' + a + '/>';
+  }
+  // Imagen de sellos (en Google Wallet será un PNG de 1032×336 con este mismo dibujo).
+  function heroSVG(c, st) {
+    var total = c.total, rows = total > 6 ? 2 : 1, cols = Math.ceil(total / rows);
+    var padX = 70, padY = rows === 2 ? 46 : 92, cw = (1032 - padX * 2) / cols, ch = (336 - padY * 2) / rows, r = Math.min(cw, ch) * 0.36;
+    var empty = rgba(st.ink, 0.42), out = '<svg class="wc-hero" viewBox="0 0 1032 336" role="img" aria-label="' + c.stamps + ' de ' + total + ' sellos">';
+    out += '<rect width="1032" height="336" fill="' + st.bg + '"/>';
+    var bg = st.img ? byId(S.backgrounds, st.img) : null;
+    if (bg) out += '<image href="' + bg.data + '" width="1032" height="336" preserveAspectRatio="xMidYMid slice"/><rect width="1032" height="336" fill="' + rgba(st.bg, 0.45) + '"/>';
+    else out += '<line x1="40" y1="1" x2="992" y2="1" stroke="' + rgba(st.ink, 0.25) + '" stroke-width="2"/>';
+    for (var i = 0; i < total; i++) {
+      var n = i + 1, row = Math.floor(i / cols), col = i % cols;
+      var inRow = row === rows - 1 ? total - cols * (rows - 1) : cols, off = (cols - inRow) * cw / 2;
+      var cx = padX + off + cw * (col + 0.5), cy = padY + ch * (row + 0.5);
+      var done = n <= c.stamps, gift = n === c.r1 || n === total;
+      if (done) {
+        out += '<circle cx="' + cx + '" cy="' + cy + '" r="' + r + '" fill="' + st.ink + '"/>';
+        out += gift ? giftSVG(cx, cy, r * 0.9, st.bg) : '<path d="' + starPath(cx, cy, r * 0.62) + '" fill="' + st.bg + '"/>';
+      } else if (gift) {
+        out += '<circle cx="' + cx + '" cy="' + cy + '" r="' + r + '" fill="none" stroke="' + st.ink + '" stroke-width="4"/>' + giftSVG(cx, cy, r * 0.9, st.ink);
+      } else {
+        out += '<circle cx="' + cx + '" cy="' + cy + '" r="' + r + '" fill="none" stroke="' + empty + '" stroke-width="3" stroke-dasharray="6 7"/>';
+        out += '<text x="' + cx + '" y="' + (cy + r * 0.2) + '" text-anchor="middle" font-family="Playfair Display, Georgia, serif" font-size="' + r * 0.6 + '" fill="' + empty + '">' + n + '</text>';
+      }
+    }
+    return out + '</svg>';
+  }
+  function cardHTML(c, cl, st) {
+    st = st || c.style;
+    var dark = isDark(st.bg), fg = dark ? '#ffffff' : '#1f1f1f', m = dark ? 'rgba(255,255,255,.66)' : 'rgba(31,31,31,.62)', nt = nextText(c);
+    return '<div class="wcard" style="background:' + st.bg + ';color:' + fg + ';--m:' + m + '">' +
+      '<div class="wc-head"><img src="' + LOGO + '" alt=""><span>missnails</span></div>' +
+      '<div class="wc-title">' + esc(S.settings.title) + '</div>' +
+      '<div class="wc-fields"><div><small>Clienta</small><b>' + esc(cl ? first(cl.name) : 'Clienta') + '</b></div>' +
+      '<div class="r"><small>Sellos</small><b>' + c.stamps + ' / ' + c.total + '</b></div>' +
+      '<div class="wide"><small>' + esc(nt[0]) + '</small>' + esc(nt[1]) + '</div></div>' +
+      heroSVG(c, st) + '</div>';
+  }
+
+  // ---------- Navegación ----------
+  var nav = { view: 'inicio', id: null, from: 'clientas' };
+  var sheet = null, query = '', qmode = 'nombre';
+  // Instagram: se guarda como lo escriba Paula; para buscar se quita la @ y los espacios.
+  function normInsta(s) { return String(s || '').toLowerCase().replace(/^.*instagram\.com\//, '').replace(/[@\s/]/g, ''); }
+  function instaLabel(s) { var n = normInsta(s); return n ? '@' + n : ''; }
+
+  var ICONS = {
+    inicio: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3c.4 3.8 2.2 5.6 6 6-3.8.4-5.6 2.2-6 6-.4-3.8-2.2-5.6-6-6 3.8-.4 5.6-2.2 6-6z"/><path d="M18.5 15.5c.2 1.5.9 2.2 2.5 2.5-1.6.3-2.3 1-2.5 2.5-.2-1.5-.9-2.2-2.5-2.5 1.6-.3 2.3-1 2.5-2.5z"/></svg>',
+    agenda: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"><rect x="3.5" y="5" width="17" height="15" rx="3"/><path d="M3.5 10h17M8 3v4M16 3v4"/><circle cx="12" cy="15" r="1.3" fill="currentColor" stroke="none"/></svg>',
+    clientas: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"><circle cx="9" cy="8" r="3.5"/><path d="M2.5 20c.8-3.6 3.3-5.5 6.5-5.5s5.7 1.9 6.5 5.5"/><circle cx="17" cy="9" r="2.6"/><path d="M17 14.5c2.3 0 3.9 1.4 4.5 4"/></svg>',
+    ajustes: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"><path d="M4 7h10M18 7h2M4 17h4M12 17h8"/><circle cx="16" cy="7" r="2"/><circle cx="10" cy="17" r="2"/></svg>'
+  };
+  function renderTabs() {
+    var cur = nav.view === 'ficha' ? 'clientas' : nav.view;
+    $('#tabs').innerHTML = '<div class="tabs-in">' + [['inicio', 'Inicio'], ['agenda', 'Agenda'], ['clientas', 'Clientas'], ['ajustes', 'Ajustes']].map(function (t) {
+      return '<button class="tab" data-a="tab" data-v="' + t[0] + '"' + (cur === t[0] ? ' aria-current="page"' : '') + '>' + ICONS[t[0]] + t[1] + '</button>';
+    }).join('') + '</div>';
+  }
+  function render() {
+    var v = VIEWS[nav.view] || VIEWS.inicio;
+    $('#app').innerHTML = v();
+    renderTabs();
+  }
+  function go(view, id) { nav.view = view; nav.id = id || null; render(); window.scrollTo(0, 0); }
+
+  function toast(msg) {
+    var r = $('#toast-root'); r.innerHTML = '<div class="toast">' + esc(msg) + '</div>';
+    clearTimeout(toast.t); toast.t = setTimeout(function () { r.innerHTML = ''; }, 3600);
+  }
+
+  // ---------- Calendario (Google Calendar a través del script de la landing) ----------
+  // La URL es la misma que usa la landing para las horas libres. La clave se guarda aparte
+  // y no va en la copia de seguridad.
+  var CAL_URL = 'https://script.google.com/macros/s/AKfycbzmAPdFxiBpdNZ_xcs1w-SfXvm5x30ooOgMz0-WbOQUK12tGiFP6z0wt9Y5TYJUEwJn/exec';
+  var CALK = 'missnails-paula-cal', CACHEK = 'missnails-paula-calcache';
+  function readLS(k, def) { try { var v = JSON.parse(localStorage.getItem(k)); return v || def; } catch (e) { return def; } }
+  function writeLS(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) {} }
+  var cal = readLS(CALK, {});
+  var calCache = readLS(CACHEK, {});
+  var calState = { day: today(), loading: {}, error: '' };
+  function calOn() { return !!(cal.url && cal.key); }
+  function addDays(s, n) { var d = parseD(s); d.setDate(d.getDate() + n); return iso(d); }
+  function mondayOf(s) { var d = parseD(s); d.setDate(d.getDate() - (d.getDay() + 6) % 7); return iso(d); }
+  function hhmm(min) { return pad(Math.floor(min / 60)) + ':' + pad(min % 60); }
+
+  function api(body) {
+    return fetch(cal.url, { method: 'POST', body: JSON.stringify(Object.assign({ clave: cal.key }, body)) })
+      .then(function (r) { return r.json(); })
+      .then(function (j) { if (j.error) throw new Error(j.error); return j; });
+  }
+  function calError(e) {
+    var m = e && e.message;
+    if (m === 'clave') return 'La clave del calendario no es correcta. Revísala en Ajustes → Calendario.';
+    if (m === 'datos' || m === 'accion' || m === 'peticion') return 'El calendario no ha entendido la petición. Puede que falte actualizar el script.';
+    return 'No se ha podido conectar con el calendario. Revisa la conexión a internet.';
+  }
+  function fetchWeek(monday, force) {
+    if (!calOn() || calState.loading[monday] || (!force && calState.error)) return;
+    var c = calCache[monday];
+    if (!force && c && Date.now() - c.at < 120000) return;
+    calState.loading[monday] = true;
+    api({ accion: 'eventos', desde: monday, hasta: addDays(monday, 7) }).then(function (j) {
+      calCache[monday] = { at: Date.now(), events: j.eventos || [] };
+      var keys = Object.keys(calCache).sort();
+      while (keys.length > 8) delete calCache[keys.shift()];
+      writeLS(CACHEK, calCache); calState.error = '';
+    }, function (e) { calState.error = calError(e); }).then(function () {
+      delete calState.loading[monday];
+      if (nav.view === 'agenda' || nav.view === 'inicio') render();
+    });
+  }
+  function eventsOn(day) {
+    var c = calCache[mondayOf(day)];
+    return (c ? c.events : []).filter(function (e) { return e.fecha === day; })
+      .sort(function (a, b) { return a.todoElDia ? -1 : b.todoElDia ? 1 : a.inicio < b.inicio ? -1 : 1; });
+  }
+  function findEvent(key) {
+    var p = key.split('|');
+    return eventsOn(p[1]).filter(function (e) { return e.id === p[0]; })[0] || null;
+  }
+  function evKey(e) { return e.id + '|' + e.fecha; }
+
+  // Las citas que llegan desde la landing tienen el título "💅 Nombre · Servicio" y el teléfono en la descripción.
+  function parseEv(e) {
+    var m = /^💅\s*(.+?)\s*·\s*(.+)$/.exec(e.titulo || ''), info = {};
+    (e.descripcion || '').split('\n').forEach(function (l) {
+      var k = /^(Teléfono|Servicio|Diseño|Comentarios):\s*(.*)$/.exec(l.trim());
+      if (k) info[k[1]] = k[2];
+      if (/retirada/i.test(l)) info.retirada = true;
+    });
+    return { name: m ? m[1] : '', service: m ? m[2] : (info['Servicio'] || ''), phone: info['Teléfono'] || '', diseno: info['Diseño'] || '', comentarios: info['Comentarios'] || '', retirada: !!info.retirada, cita: !!(m || info['Teléfono']) };
+  }
+  function digits9(p) { return String(p || '').replace(/\D/g, '').slice(-9); }
+  function matchClient(p) {
+    var ph = digits9(p.phone), nm = p.name.trim().toLowerCase();
+    return S.clients.filter(function (c) { return ph.length === 9 && digits9(c.phone) === ph; })[0] ||
+      S.clients.filter(function (c) { return nm && c.name.trim().toLowerCase() === nm; })[0] || null;
+  }
+  function matchService(name) {
+    var n = String(name || '').trim().toLowerCase();
+    if (n === 'solo retirada') return byId(S.services, 'ret');
+    return S.services.filter(function (s) { return s.name.toLowerCase() === n; })[0] || null;
+  }
+  function isDone(e) { return e.terminada || S.visits.some(function (v) { return v.eventKey === evKey(e); }); }
+
+  function evRow(e) {
+    var p = parseEv(e), cl = p.cita ? matchClient(p) : null, done = isDone(e);
+    var time = e.todoElDia ? '<div class="ev-time">Todo<br><span>el día</span></div>' : '<div class="ev-time">' + e.inicio + '<br><span>' + e.fin + '</span></div>';
+    if (!p.cita) return '<div class="ev block">' + time + '<div><div class="t">' + esc(e.titulo || 'Ocupado') + '</div><div class="s">Hueco bloqueado</div></div><span></span></div>';
+    var name = cl ? cl.name : p.name;
+    return '<div class="ev' + (done ? ' done' : '') + '">' + time +
+      '<div' + (cl ? ' data-a="open-client" data-id="' + cl.id + '" style="cursor:pointer"' : '') + '><div class="t">' + esc(name) + (cl ? '' : ' <span class="small" style="color:var(--accent)">nueva</span>') + '</div>' +
+      '<div class="s">' + esc(p.service) + (p.diseno ? ' · ' + esc(p.diseno) : '') + '</div></div>' +
+      (done ? '<span class="pill ok">✓ Terminada</span>' : '<button class="btn sm" data-a="ev-finish" data-key="' + esc(evKey(e)) + '">Terminar</button>') + '</div>';
+  }
+
+  // ---------- Vistas ----------
+  function visitRow(v, showClient) {
+    var cl = client(v.clientId);
+    return '<button class="item" data-a="open-client" data-id="' + v.clientId + '">' +
+      '<div class="avatar">' + initial(cl && cl.name) + '</div>' +
+      '<div><div class="t">' + esc(showClient ? (cl ? cl.name : 'Clienta borrada') : v.serviceName) + '</div>' +
+      '<div class="s">' + dShort(v.date) + ' · ' + esc(showClient ? v.serviceName : v.method) + '</div></div>' +
+      '<div style="text-align:right"><div class="num" style="font-weight:600">' + eur(v.amount) + '</div>' + (v.stamped ? '<div class="small" style="color:var(--accent)">✦ sello</div>' : '') + '</div></button>';
+  }
+  function rewardRow(p, showClient) {
+    var cl = client(p.card.clientId);
+    return '<div class="item"><div class="avatar">🎁</div><div><div class="t">' + esc(p.gift) + '</div><div class="s">' +
+      esc(showClient && cl ? cl.name + ' · ' : '') + (p.w === 1 ? 'Sello ' + p.card.r1 : 'Tarjeta completa') + '</div></div>' +
+      '<button class="btn sm" data-a="reward-given" data-card="' + p.card.id + '" data-w="' + p.w + '">Entregado</button></div>';
+  }
+
+  var VIEWS = {
+    inicio: function () {
+      var now = new Date(), ym = iso(now).slice(0, 7);
+      var month = S.visits.filter(function (v) { return v.date.slice(0, 7) === ym; });
+      var income = month.reduce(function (a, v) { return a + v.amount; }, 0);
+      var pend = pendingRewards();
+      var fulls = S.cards.filter(function (c) { return c.status === 'activa' && isFull(c); });
+      var last = S.visits.slice().sort(function (a, b) { return b.date < a.date ? -1 : b.date > a.date ? 1 : 0; }).slice(0, 6);
+      var ex = S.clients.some(function (c) { return c.ejemplo; });
+      return '<div class="stack">' +
+        '<header class="hello"><p class="date">' + fmtLong.format(now) + '</p><h1>Hola, <span class="script">Paula</span></h1></header>' +
+        (ex ? '<div class="banner"><span>Estás viendo <b>clientas de ejemplo</b> para probar la app. Cuando quieras empezar de verdad, bórralas.</span><div><button class="btn sm" data-a="clear-examples">Borrar ejemplos</button></div></div>' : '') +
+        '<button class="btn-main big full" data-a="cita">✦ Terminar cita</button>' +
+        (calOn() ? (function () {
+          var t = today(), evs = eventsOn(t);
+          fetchWeek(mondayOf(t));
+          return '<div class="sec"><div class="between"><h2>Hoy</h2><button class="link" data-a="tab" data-v="agenda">Ver agenda</button></div><div class="list">' +
+            (evs.length ? evs.map(evRow).join('') : '<div class="empty">' + (calCache[mondayOf(t)] ? 'No tienes citas hoy.' : 'Cargando tu calendario…') + '</div>') + '</div></div>';
+        })() : '') +
+        '<div class="sec"><span class="lbl">En ' + fmtMonth.format(now) + '</span><div class="stats">' +
+        '<div class="stat"><b>' + eur(income) + '</b><span>Cobrado</span></div>' +
+        '<div class="stat"><b>' + month.length + '</b><span>Citas</span></div>' +
+        '<div class="stat"><b>' + (month.length ? eur(income / month.length) : '—') + '</b><span>Por cita</span></div></div></div>' +
+        (fulls.length ? '<div class="sec"><h2>Tarjetas completas</h2><div class="list">' + fulls.map(function (c) {
+          var cl = client(c.clientId);
+          return '<button class="item" data-a="open-client" data-id="' + c.clientId + '"><div class="avatar">' + initial(cl && cl.name) + '</div><div><div class="t">' + esc(cl && cl.name) + '</div><div class="s">Elige si ponerla a 0 o darle una nueva</div></div><span class="pill gift">' + c.stamps + '/' + c.total + '</span></button>';
+        }).join('') + '</div></div>' : '') +
+        (pend.length ? '<div class="sec"><h2>Regalos por entregar</h2><div class="list">' + pend.map(function (p) { return rewardRow(p, true); }).join('') + '</div></div>' : '') +
+        '<div class="sec"><h2>Últimas citas</h2><div class="list">' + (last.length ? last.map(function (v) { return visitRow(v, true); }).join('') : '<div class="empty">Aquí saldrán las citas que vayas terminando.</div>') + '</div></div>' +
+        '</div>';
+    },
+
+    agenda: function () {
+      var day = calState.day, mon = mondayOf(day), t = today();
+      var head = '<div class="between"><h1>Agenda</h1>' + (calOn() ? '<button class="btn" data-a="new-event">+ Nueva cita</button>' : '') + '</div>';
+      if (!calOn()) return '<div class="stack">' + head + '<div class="panel"><h2>Conecta tu Google Calendar</h2><p class="muted" style="margin:0">Verás aquí las citas que guardas desde los WhatsApp de la web, podrás terminarlas con un toque y apuntar citas nuevas.</p><button class="btn-main" data-a="cal-config">Conectar calendario</button></div></div>';
+      fetchWeek(mon);
+      var c = calCache[mon], days = '';
+      for (var i = 0; i < 7; i++) {
+        var d = addDays(mon, i), n = eventsOn(d).filter(function (e) { return parseEv(e).cita; }).length;
+        days += '<button class="day' + (d === t ? ' today' : '') + '" data-a="pick-day" data-v="' + d + '" aria-pressed="' + (d === day) + '">' +
+          ['L', 'M', 'X', 'J', 'V', 'S', 'D'][i] + '<b>' + parseD(d).getDate() + '</b><i class="' + (n ? 'on' : '') + '"></i></button>';
+      }
+      var evs = eventsOn(day), loading = !!calState.loading[mon];
+      var status = calState.error ? '<div class="status err"><span>' + esc(calState.error) + '</span><button class="link" data-a="cal-refresh">Reintentar</button></div>' :
+        '<div class="status"><span>' + (loading ? 'Actualizando…' : c ? 'Actualizado a las ' + hhmm(new Date(c.at).getHours() * 60 + new Date(c.at).getMinutes()) : '') + '</span><button class="link" data-a="cal-refresh">Actualizar</button></div>';
+      var label = dShort(mon) + ' – ' + dShort(addDays(mon, 6));
+      return '<div class="stack">' + head +
+        '<div class="sec"><div class="weeknav"><button class="arrow" data-a="week" data-v="-7" aria-label="Semana anterior">‹</button>' +
+        '<button class="link" data-a="pick-day" data-v="' + t + '">' + label + (mon !== mondayOf(t) ? ' · volver a hoy' : '') + '</button>' +
+        '<button class="arrow" data-a="week" data-v="7" aria-label="Semana siguiente">›</button></div><div class="days">' + days + '</div>' + status + '</div>' +
+        '<div class="sec"><h2 style="text-transform:capitalize">' + fmtLong.format(parseD(day)) + '</h2><div class="list">' +
+        (evs.length ? evs.map(evRow).join('') : '<div class="empty">' + (c ? 'No hay nada este día.' : 'Cargando…') + '</div>') + '</div></div></div>';
+    },
+
+    clientas: function () {
+      return '<div class="stack"><div class="between"><h1>Clientas</h1><button class="btn" data-a="new-client">+ Nueva</button></div>' +
+        '<div class="chips">' + [['nombre', 'Nombre o teléfono'], ['insta', 'Instagram']].map(function (m) {
+          return '<button class="chip" data-a="qmode" data-v="' + m[0] + '" aria-pressed="' + (qmode === m[0]) + '">' + m[1] + '</button>';
+        }).join('') + '</div>' +
+        '<input type="search" id="q" data-in="q" placeholder="' + (qmode === 'insta' ? 'Buscar por @usuario de Instagram' : 'Buscar por nombre o teléfono') + '" value="' + esc(query) + '" autocomplete="off" autocapitalize="off">' +
+        '<div class="list" id="client-list">' + clientList() + '</div></div>';
+    },
+
+    ficha: function () {
+      var c = client(nav.id);
+      if (!c) { nav.view = 'clientas'; return VIEWS.clientas(); }
+      var card = activeCard(c.id), visits = S.visits.filter(function (v) { return v.clientId === c.id; }).sort(function (a, b) { return a.date < b.date ? 1 : -1; });
+      var spent = visits.reduce(function (a, v) { return a + v.amount; }, 0), pend = pendingRewards(c.id);
+      var old = clientCards(c.id).filter(function (k) { return k.status === 'cerrada'; });
+      var wa = waLink(c.phone);
+      var h = '<div class="stack"><div><div class="topbar"><button data-a="back">‹ Clientas</button><button data-a="edit-client" data-id="' + c.id + '">Editar</button></div>' +
+        '<h1>' + esc(c.name) + '</h1><p class="muted" style="margin:4px 0 0">' + esc(c.phone || 'Sin teléfono') +
+        (wa ? ' · <a href="' + wa + '" target="_blank" rel="noopener">WhatsApp</a>' : '') + (instaLabel(c.insta) ? ' · <a href="https://instagram.com/' + encodeURIComponent(normInsta(c.insta)) + '" target="_blank" rel="noopener">' + esc(instaLabel(c.insta)) + '</a>' : '') + '</p></div>';
+      if (card) {
+        h += cardHTML(card, c) + '<div class="card-actions"><button class="btn sm" data-a="style-card" data-id="' + card.id + '">Cambiar estilo</button>' +
+          '<button class="btn sm" data-a="show-qr" data-id="' + card.id + '">QR para añadirla</button>' +
+          (card.stamps > 0 ? '<button class="btn sm" data-a="undo-stamp" data-id="' + card.id + '">Quitar último sello</button>' : '') + '</div>';
+        if (isFull(card)) h += '<div class="alert"><span><b>Tarjeta completa.</b> ¿Qué quieres hacer?</span><div class="row">' +
+          '<button class="btn" data-a="full-reset" data-id="' + card.id + '">Ponerla a 0</button><button class="btn" data-a="full-new" data-id="' + card.id + '">Darle una nueva</button></div>' +
+          '<span class="small muted">A 0: sigue siendo la misma tarjeta en su móvil. Nueva: escanea otro QR y la antigua la puede borrar.</span></div>';
+      } else {
+        h += '<div class="nocard"><span>' + esc(first(c.name)) + ' aún no tiene tarjeta de fidelidad.</span><button class="btn" data-a="give-card" data-id="' + c.id + '">Darle tarjeta</button></div>';
+      }
+      if (pend.length) h += '<div class="sec"><h2>Regalos por entregar</h2><div class="list">' + pend.map(function (p) { return rewardRow(p, false); }).join('') + '</div></div>';
+      h += '<button class="btn-main full" data-a="cita" data-id="' + c.id + '">✦ Terminar cita</button>';
+      h += '<div class="stats"><div class="stat"><b>' + visits.length + '</b><span>Citas</span></div><div class="stat"><b>' + eur(spent) + '</b><span>En total</span></div><div class="stat"><b>' + (visits[0] ? dShort(visits[0].date) : '—') + '</b><span>Última</span></div></div>';
+      h += '<div class="sec"><div class="between"><h2>Notas privadas</h2><span class="small muted">Solo las ves tú</span></div><textarea id="note" data-in="note" data-id="' + c.id + '" placeholder="Alergias, gustos, cómo tiene las uñas…">' + esc(c.note) + '</textarea></div>';
+      h += '<div class="sec"><h2>Historial</h2><div class="list">' + (visits.length ? visits.map(function (v) {
+        return '<div class="item"><div class="avatar" style="font-size:13px;font-family:var(--sans)">' + dShort(v.date) + '</div><div><div class="t">' + esc(v.serviceName) + '</div><div class="s">' +
+          esc([v.method, v.diseno ? 'diseño +' + v.diseno + ' €' : '', v.retirada ? 'retirada' : '', v.stamped ? '✦ sello' : ''].filter(Boolean).join(' · ')) + (v.note ? '<br>' + esc(v.note) : '') + '</div></div>' +
+          '<div style="text-align:right"><div class="num" style="font-weight:600">' + eur(v.amount) + '</div><button class="small muted" data-a="delete-visit" data-id="' + v.id + '">Borrar</button></div></div>';
+      }).join('') : '<div class="empty">Todavía no hay citas.</div>') + '</div></div>';
+      if (old.length) h += '<div class="sec"><h2>Tarjetas anteriores</h2><div class="list">' + old.map(function (k) {
+        return '<div class="item"><div class="avatar">' + k.n + '</div><div><div class="t">Tarjeta ' + k.n + '</div><div class="s">Del ' + dShort(k.created) + ' al ' + dShort(k.closed) + '</div></div><span class="pill ok">' + k.stamps + '/' + k.total + '</span></div>';
+      }).join('') + '</div></div>';
+      return h + '</div>';
+    },
+
+    ajustes: function () {
+      var st = S.settings, totals = '', r1s = '';
+      for (var i = 4; i <= 12; i++) totals += '<option value="' + i + '"' + (i === st.total ? ' selected' : '') + '>' + i + ' sellos</option>';
+      for (var j = 1; j < st.total; j++) r1s += '<option value="' + j + '"' + (j === st.r1 ? ' selected' : '') + '>Sello ' + j + '</option>';
+      var cats = {};
+      S.services.forEach(function (s) { (cats[s.cat] = cats[s.cat] || []).push(s); });
+      var actives = S.cards.filter(function (c) { return c.status === 'activa'; }).length;
+      return '<div class="stack"><h1>Ajustes</h1>' +
+        '<div class="sec"><h2>Tarjeta de fidelidad</h2><div class="panel">' +
+        '<label class="fld"><span>Frase de la tarjeta</span><input type="text" id="s-title" data-set="title" value="' + esc(st.title) + '" maxlength="40"></label>' +
+        '<div class="grid2"><label class="fld"><span>Sellos para llenarla</span><select id="s-total" data-set="total">' + totals + '</select></label>' +
+        '<label class="fld"><span>Primer regalo en el</span><select id="s-r1" data-set="r1">' + r1s + '</select></label></div>' +
+        '<label class="fld"><span>Primer regalo</span><input type="text" id="s-g1" data-set="g1" value="' + esc(st.g1) + '" maxlength="40"></label>' +
+        '<label class="fld"><span>Regalo al llenarla</span><input type="text" id="s-g2" data-set="g2" value="' + esc(st.g2) + '" maxlength="40"></label>' +
+        '<div class="between"><span class="fld"><span>Estilo para las tarjetas nuevas</span></span><button class="btn sm" data-a="style-default"><span class="dot" style="width:18px;height:18px;background:' + st.style.bg + ';border-color:' + st.style.ink + '"></span>Cambiar</button></div>' +
+        '<p class="small muted" style="margin:0">Las tarjetas que ya tienen las clientas no cambian solas.' + (actives ? ' <button class="link" data-a="apply-active">Aplicar sellos y regalos a las ' + actives + ' tarjetas activas</button>' : '') + '</p>' +
+        '</div></div>' +
+        '<div class="sec"><div class="between"><h2>Servicios y precios</h2><button class="btn sm" data-a="svc-new">+ Añadir</button></div><div class="list">' +
+        Object.keys(cats).map(function (k) {
+          return '<div class="item" style="background:var(--surface2);padding:8px 14px"><span></span><span class="lbl">' + esc(k) + '</span><span></span></div>' + cats[k].map(function (s) {
+            return '<button class="item" data-a="svc-edit" data-id="' + s.id + '"><span style="color:var(--accent);width:14px">' + (s.stamp ? '✦' : '') + '</span><div><div class="t">' + esc(s.name) + '</div></div><span class="num">' + eur(s.price) + '</span></button>';
+          }).join('');
+        }).join('') + '</div><p class="small muted" style="margin:0">✦ = cuenta para sello. Pulsa un servicio para cambiarlo.</p></div>' +
+        '<div class="sec"><h2>Fotos de fondo</h2>' + (S.backgrounds.length ? '<div class="thumbs">' + S.backgrounds.map(function (b) {
+          return '<div class="thumb" style="background-image:url(' + b.data + ')"><button class="x" data-a="bg-delete" data-id="' + b.id + '" aria-label="Borrar foto">×</button></div>';
+        }).join('') + '</div>' : '<p class="small muted" style="margin:0">Puedes subir fotos desde «Cambiar estilo» en cualquier tarjeta y saldrán aquí.</p>') + '</div>' +
+        '<div class="sec"><h2>Calendario</h2><div class="panel"><div class="between"><span>' + (calOn() ? '<b style="color:var(--ok)">✓ Conectado</b> a tu Google Calendar' : 'Sin conectar') + '</span>' +
+        '<button class="btn sm" data-a="cal-config">' + (calOn() ? 'Cambiar' : 'Conectar') + '</button></div>' +
+        '<p class="small muted" style="margin:0">Las citas que termines desde la agenda se ponen verdes en Google Calendar.</p></div></div>' +
+        '<div class="sec"><h2>Copia de seguridad</h2><div class="panel"><p class="small muted" style="margin:0">De momento los datos se guardan solo en este móvil. Cuando conectemos la nube se guardarán solos; mientras, haz una copia de vez en cuando y guárdala en Notas o envíatela por WhatsApp.</p>' +
+        '<div class="row"><button class="btn" data-a="backup-copy">Copiar copia</button><button class="btn" data-a="backup-restore">Restaurar copia</button></div></div></div>' +
+        (S.clients.some(function (c) { return c.ejemplo; }) ? '<button class="btn danger full" data-a="clear-examples">Borrar clientas de ejemplo</button>' : '') +
+        '</div>';
+    }
+  };
+
+  function clientList() {
+    var q = query.trim().toLowerCase();
+    var list = S.clients.filter(function (c) {
+      if (!q) return true;
+      if (qmode === 'insta') return normInsta(c.insta).indexOf(normInsta(q)) > -1 && !!normInsta(c.insta);
+      return c.name.toLowerCase().indexOf(q) > -1 || (q.replace(/\s/g, '') && String(c.phone).replace(/\s/g, '').indexOf(q.replace(/\s/g, '')) > -1);
+    }).sort(function (a, b) { return a.name.localeCompare(b.name, 'es'); });
+    if (!list.length) return '<div class="empty">' + (q ? 'No hay ninguna clienta con ' + (qmode === 'insta' ? 'el Instagram' : '') + ' «' + esc(query) + '».' : 'Aún no hay clientas. Pulsa «+ Nueva» para añadir la primera.') + '</div>';
+    return list.map(function (c) {
+      var card = activeCard(c.id), gift = pendingRewards(c.id).length;
+      var lastV = S.visits.filter(function (v) { return v.clientId === c.id; }).map(function (v) { return v.date; }).sort().pop();
+      return '<button class="item" data-a="open-client" data-id="' + c.id + '"><div class="avatar">' + initial(c.name) + '</div>' +
+        '<div><div class="t">' + esc(c.name) + (c.ejemplo ? ' <span class="small muted">(ejemplo)</span>' : '') + '</div><div class="s">' + (c.insta ? esc(instaLabel(c.insta)) + ' · ' : '') + (lastV ? 'Última cita ' + dShort(lastV) : 'Sin citas') + '</div></div>' +
+        '<div style="text-align:right">' + (card ? '<span class="pill' + (gift ? ' gift' : '') + '">' + (gift ? '🎁 ' : '') + card.stamps + '/' + card.total + '</span><div class="mini"><i style="width:' + Math.round(card.stamps / card.total * 100) + '%"></i></div>' : '<span class="small muted">Sin tarjeta</span>') + '</div></button>';
+    }).join('');
+  }
+
+  // ---------- Hojas ----------
+  var SHEETS = {
+    cliente: function (d) {
+      return {
+        title: d.id ? 'Editar clienta' : 'Nueva clienta',
+        body: '<label class="fld"><span>Nombre y apellidos</span><input type="text" id="f-name" data-f="name" value="' + esc(d.name) + '" autocomplete="off" maxlength="60"></label>' +
+          '<label class="fld"><span>Teléfono</span><input type="tel" id="f-phone" data-f="phone" value="' + esc(d.phone) + '" inputmode="tel" maxlength="20"></label>' +
+          '<label class="fld"><span>Instagram <span class="muted">(opcional)</span></span><input type="text" id="f-insta" data-f="insta" value="' + esc(d.insta) + '" placeholder="@usuario" maxlength="40"></label>' +
+          (d.id ? '<button class="btn danger" data-a="client-delete">Borrar clienta</button>' : '<p class="small muted" style="margin:0">' + (d.fromEvent ? 'Es su primera cita: guárdala como clienta y sigues con la cita.' : 'Al guardarla podrás darle su tarjeta de fidelidad.') + '</p>'),
+        foot: '<button class="btn-main full" data-a="sheet-save">Guardar</button>'
+      };
+    },
+
+    cita: function (d) {
+      var svc = byId(S.services, d.serviceId), ret = byId(S.services, 'ret');
+      var cl = client(d.clientId), card = cl ? activeCard(cl.id) : null;
+      var clientField = d.fixed && cl ? '<div class="fld"><span>Clienta</span><b style="font-size:17px">' + esc(cl.name) + '</b></div>' :
+        '<label class="fld"><span>Clienta</span><select id="f-client" data-f="clientId"><option value="">Elige clienta…</option>' +
+        S.clients.slice().sort(function (a, b) { return a.name.localeCompare(b.name, 'es'); }).map(function (c) {
+          return '<option value="' + c.id + '"' + (c.id === d.clientId ? ' selected' : '') + '>' + esc(c.name) + '</option>';
+        }).join('') + '<option value="__new">+ Nueva clienta</option></select></label>';
+      var cats = [], groups = {};
+      S.services.forEach(function (s) { if (!groups[s.cat]) { groups[s.cat] = []; cats.push(s.cat); } groups[s.cat].push(s); });
+      var opts = cats.map(function (k) {
+        return '<div class="grp">' + esc(k) + '</div>' + groups[k].map(function (s) {
+          return '<button class="opt" data-a="pick" data-k="serviceId" data-v="' + s.id + '" aria-pressed="' + (s.id === d.serviceId) + '"><span>' + esc(s.name) + '</span><span class="p">' + eur(s.price) + '</span></button>';
+        }).join('');
+      }).join('');
+      var stampBox = '';
+      if (cl) {
+        if (card && isFull(card)) {
+          stampBox = '<div class="stampbox"><b>Su tarjeta está completa (' + card.stamps + '/' + card.total + ')</b><div class="chips">' +
+            [['none', 'No sellar'], ['reset', 'Ponerla a 0 y sellar'], ['new', 'Tarjeta nueva y sellar']].map(function (o) {
+              return '<button class="chip" data-a="pick" data-k="fullAction" data-v="' + o[0] + '" aria-pressed="' + (d.fullAction === o[0]) + '">' + o[1] + '</button>';
+            }).join('') + '</div></div>';
+        } else {
+          var s0 = card ? card.stamps : 0, t = card ? card.total : S.settings.total, r1 = card ? card.r1 : S.settings.r1, g1 = card ? card.g1 : S.settings.g1, g2 = card ? card.g2 : S.settings.g2;
+          var gift = s0 + 1 === r1 ? ' 🎁 ' + g1 : s0 + 1 === t ? ' 🎁 ' + g2 : '';
+          stampBox = '<div class="stampbox"><label class="switch"><span>Sellar tarjeta</span><input type="checkbox" id="f-stamp" data-f="stamp"' + (d.stamp ? ' checked' : '') + '></label>' +
+            '<span class="small muted">' + (card ? 'Pasa de ' + s0 + ' a ' + (s0 + 1) + ' de ' + t + '.' + esc(gift) : 'Aún no tiene tarjeta: al sellar se le crea una.') + '</span></div>';
+        }
+      }
+      return {
+        title: 'Terminar cita',
+        body: (d.evInfo ? '<div class="info"><b>Del calendario:</b> ' + esc(d.evInfo) + '</div>' : '') + clientField +
+          '<div class="fld"><span>Servicio</span><div class="opts">' + opts + '</div></div>' +
+          (svc && svc.id !== 'ret' ? '<div class="fld"><span>Diseño</span><div class="chips">' + DESIGN.map(function (x) {
+            return '<button class="chip" data-a="pick" data-k="diseno" data-v="' + x[0] + '" aria-pressed="' + (d.diseno === x[0]) + '">' + x[1] + '</button>';
+          }).join('') + '</div></div>' +
+          (ret ? '<label class="check"><input type="checkbox" id="f-ret" data-f="retirada"' + (d.retirada ? ' checked' : '') + '><span>Retirada de un trabajo anterior (+' + eur(ret.price) + ')</span></label>' : '') : '') +
+          '<div class="grid2"><label class="fld"><span>Cobrado (€)</span><input type="text" id="f-amount" data-f="amount" inputmode="decimal" value="' + esc(d.amount) + '"></label>' +
+          '<label class="fld"><span>Fecha</span><input type="date" id="f-date" data-f="date" value="' + esc(d.date) + '" max="' + today() + '"></label></div>' +
+          '<div class="fld"><span>Forma de pago</span><div class="chips">' + METHODS.map(function (m) {
+            return '<button class="chip" data-a="pick" data-k="method" data-v="' + m + '" aria-pressed="' + (d.method === m) + '">' + m + '</button>';
+          }).join('') + '</div></div>' + stampBox +
+          '<label class="fld"><span>Nota de esta cita <span class="muted">(opcional)</span></span><textarea id="f-note" data-f="note" rows="2" placeholder="Colores, diseño, cómo ha ido…">' + esc(d.note) + '</textarea></label>' +
+          (d.error ? '<p style="color:#c0392b;margin:0;font-weight:500">' + esc(d.error) + '</p>' : ''),
+        foot: '<button class="btn-main full" data-a="sheet-save">Guardar cita</button>'
+      };
+    },
+
+    qr: function (d) {
+      var cl = client(d.clientId);
+      return {
+        title: 'Tarjeta de ' + esc(first(cl && cl.name)),
+        body: '<div class="qrwrap" id="qrbox"></div>' +
+          '<p style="margin:0;text-align:center">Enséñale este QR a <b>' + esc(first(cl && cl.name)) + '</b>. Lo escanea con la cámara del móvil y se guarda la tarjeta en su Google Wallet.</p>' +
+          '<p class="small muted" style="margin:0;text-align:center">De momento es un QR de prueba. Funcionará cuando conectemos Google Wallet.</p>',
+        foot: '<button class="btn full" data-a="sheet-close">Hecho</button>',
+        after: function () {
+          var box = $('#qrbox');
+          if (window.QRCode) new window.QRCode(box, { text: 'https://missnails.app/tarjeta/' + d.passId, width: 220, height: 220, colorDark: '#25304f', colorLight: '#ffffff' });
+          else box.innerHTML = '<span class="small" style="color:#25304f">No se ha podido dibujar el QR.</span>';
+        }
+      };
+    },
+
+    estilo: function (d) {
+      var card = d.cardId ? byId(S.cards, d.cardId) : null, cl = card ? client(card.clientId) : null;
+      var sample = card || { stamps: 3, total: S.settings.total, r1: S.settings.r1, g1: S.settings.g1, g2: S.settings.g2 };
+      return {
+        title: card ? 'Estilo de la tarjeta' : 'Estilo para tarjetas nuevas',
+        body: '<div id="style-preview">' + cardHTML(sample, cl, d.style) + '</div>' +
+          '<div class="fld"><span>Estilos rápidos</span><div class="swatches">' + PRESETS.map(function (p, i) {
+            return '<button class="swatch" data-a="preset" data-i="' + i + '" style="background:' + p.bg + ';color:' + (isDark(p.bg) ? '#fff' : '#1f1f1f') + '" aria-pressed="' + (d.style.bg === p.bg && d.style.ink === p.ink) + '"><i style="background:' + p.ink + '"></i>' + p.name + '</button>';
+          }).join('') + '</div></div>' +
+          '<div class="grid2"><label class="fld"><span>Color de la tarjeta</span><span class="colorrow"><input type="color" id="f-bg" data-f="bg" value="' + d.style.bg + '"><span class="small muted">El que quieras</span></span></label>' +
+          '<div class="fld"><span>Color de los sellos</span><div class="row">' + INKS.map(function (c) {
+            return '<button class="dot" style="background:' + c + '" data-a="pick" data-k="style.ink" data-v="' + c + '" aria-pressed="' + (d.style.ink === c) + '" aria-label="Color ' + c + '"></button>';
+          }).join('') + '<input type="color" id="f-ink" data-f="ink" value="' + d.style.ink + '" aria-label="Otro color de sellos"></div></div></div>' +
+          '<div class="fld"><span>Foto detrás de los sellos</span><div class="thumbs">' +
+          '<button class="thumb" data-a="pick" data-k="style.img" data-v="" aria-pressed="' + !d.style.img + '">Sin foto</button>' +
+          S.backgrounds.map(function (b) { return '<button class="thumb" style="background-image:url(' + b.data + ')" data-a="pick" data-k="style.img" data-v="' + b.id + '" aria-pressed="' + (d.style.img === b.id) + '" aria-label="Foto"></button>'; }).join('') +
+          '<label class="thumb upload">+ Subir foto<input type="file" id="f-file" accept="image/*" data-file="bg"></label></div></div>' +
+          (card ? '<label class="check"><input type="checkbox" id="f-def" data-f="asDefault"' + (d.asDefault ? ' checked' : '') + '><span>Usar también para las tarjetas nuevas</span></label>' : '') +
+          '<p class="small muted" style="margin:0">Google pone los textos con su propia letra y elige solo si van en blanco o negro según el color. El logo, el color y la imagen de los sellos son tuyos.</p>',
+        foot: '<button class="btn-main full" data-a="sheet-save">Guardar estilo</button>'
+      };
+    },
+
+    servicio: function (d) {
+      var cats = []; S.services.forEach(function (s) { if (cats.indexOf(s.cat) < 0) cats.push(s.cat); });
+      return {
+        title: d.id ? 'Editar servicio' : 'Nuevo servicio',
+        body: '<label class="fld"><span>Nombre</span><input type="text" id="f-sname" data-f="name" value="' + esc(d.name) + '" maxlength="60"></label>' +
+          '<div class="grid2"><label class="fld"><span>Precio (€)</span><input type="text" id="f-price" data-f="price" inputmode="decimal" value="' + esc(d.price) + '"></label>' +
+          '<label class="fld"><span>Grupo</span><input type="text" id="f-cat" data-f="cat" list="cats" value="' + esc(d.cat) + '"><datalist id="cats">' + cats.map(function (c) { return '<option value="' + esc(c) + '">'; }).join('') + '</datalist></label></div>' +
+          '<div class="stampbox"><label class="switch"><span>Cuenta para sello</span><input type="checkbox" id="f-sstamp" data-f="stamp"' + (d.stamp ? ' checked' : '') + '></label><span class="small muted">Si está activado, al terminar una cita con este servicio el sello sale marcado. Siempre lo puedes cambiar en la cita.</span></div>' +
+          (d.id && d.id !== 'ret' ? '<button class="btn danger" data-a="svc-delete">Borrar servicio</button>' : '') +
+          (d.error ? '<p style="color:#c0392b;margin:0;font-weight:500">' + esc(d.error) + '</p>' : ''),
+        foot: '<button class="btn-main full" data-a="sheet-save">Guardar</button>'
+      };
+    },
+
+    calConfig: function (d) {
+      return {
+        title: 'Conectar calendario',
+        body: '<p style="margin:0">La app usa el mismo Google Calendar que la web de reservas. Solo hace falta la <b>clave</b> que sale en el script de Google al ejecutar «crearClave».</p>' +
+          '<label class="fld"><span>Clave</span><input type="text" id="f-key" data-f="key" value="' + esc(d.key) + '" autocomplete="off" autocapitalize="off" spellcheck="false"></label>' +
+          '<details><summary class="small muted">Dirección del script</summary><label class="fld" style="margin-top:8px"><span>URL (termina en /exec)</span><input type="text" id="f-url" data-f="url" value="' + esc(d.url) + '" autocomplete="off" autocapitalize="off" spellcheck="false"></label></details>' +
+          (d.testing ? '<p class="muted" style="margin:0">Comprobando…</p>' : '') +
+          (d.error ? '<p style="color:#c0392b;margin:0;font-weight:500">' + esc(d.error) + '</p>' : '') +
+          (calOn() ? '<button class="btn danger" data-a="cal-off">Desconectar calendario</button>' : ''),
+        foot: '<button class="btn-main full" data-a="sheet-save"' + (d.testing ? ' disabled' : '') + '>Conectar y comprobar</button>'
+      };
+    },
+
+    nuevaCita: function (d) {
+      var hours = d.hours ? (d.hours.length ? d.hours.map(function (h) {
+        return '<button class="chip" data-a="pick" data-k="hora" data-v="' + h + '" aria-pressed="' + (d.hora === h) + '">' + h + '</button>';
+      }).join('') : '<span class="small muted">Ese día no quedan huecos en el horario. Puedes poner otra hora a mano.</span>') : '<span class="small muted">' + (d.fecha ? 'Mirando huecos libres…' : 'Elige un día para ver los huecos libres.') + '</span>';
+      return {
+        title: 'Nueva cita',
+        body: '<label class="fld"><span>Clienta</span><select id="f-nclient" data-f="clientId"><option value="">Elige clienta…</option>' +
+          S.clients.slice().sort(function (a, b) { return a.name.localeCompare(b.name, 'es'); }).map(function (c) {
+            return '<option value="' + c.id + '"' + (c.id === d.clientId ? ' selected' : '') + '>' + esc(c.name) + '</option>';
+          }).join('') + '<option value="__new">+ Nueva clienta</option></select></label>' +
+          '<label class="fld"><span>Servicio</span><select id="f-nsvc" data-f="serviceId"><option value="">Elige servicio…</option>' +
+          S.services.map(function (s) { return '<option value="' + s.id + '"' + (s.id === d.serviceId ? ' selected' : '') + '>' + esc(s.name) + '</option>'; }).join('') + '</select></label>' +
+          '<div class="grid2"><label class="fld"><span>Día</span><input type="date" id="f-nfecha" data-f="fecha" value="' + esc(d.fecha) + '"></label>' +
+          '<label class="fld"><span>Hora</span><input type="time" id="f-nhora" data-f="hora" value="' + esc(d.hora) + '" step="900"></label></div>' +
+          '<div class="fld"><span>Huecos libres</span><div class="chips">' + hours + '</div></div>' +
+          '<div class="fld"><span>Duración</span><div class="chips">' + [60, 90, 120, 150, 180].map(function (m) {
+            return '<button class="chip" data-a="pick" data-k="minutos" data-v="' + m + '" aria-pressed="' + (d.minutos === m) + '">' + (m % 60 ? Math.floor(m / 60) + ' h 30' : m / 60 + ' h') + '</button>';
+          }).join('') + '</div></div>' +
+          '<label class="fld"><span>Nota <span class="muted">(opcional)</span></span><textarea id="f-nnote" data-f="note" rows="2" placeholder="Diseño que quiere, colores…">' + esc(d.note) + '</textarea></label>' +
+          (d.error ? '<p style="color:#c0392b;margin:0;font-weight:500">' + esc(d.error) + '</p>' : ''),
+        foot: '<button class="btn-main full" data-a="sheet-save"' + (d.saving ? ' disabled' : '') + '>' + (d.saving ? 'Guardando…' : 'Guardar en el calendario') + '</button>'
+      };
+    },
+
+    confirm: function (d) {
+      return {
+        title: d.title,
+        body: '<p style="margin:0">' + d.text + '</p>',
+        foot: '<button class="btn-main full" data-a="confirm-ok" style="' + (d.danger ? 'background:#c0392b;color:#fff' : '') + '">' + esc(d.ok) + '</button><button class="btn full" data-a="sheet-close">Cancelar</button>'
+      };
+    },
+
+    restaurar: function (d) {
+      return {
+        title: 'Restaurar copia',
+        body: '<p class="small muted" style="margin:0">Pega aquí la copia que guardaste. Se sustituirán todos los datos de este móvil.</p><textarea id="f-json" data-f="json" rows="8" placeholder="Pega la copia aquí"></textarea>' +
+          (d.error ? '<p style="color:#c0392b;margin:0;font-weight:500">' + esc(d.error) + '</p>' : ''),
+        foot: '<button class="btn-main full" data-a="sheet-save">Restaurar</button>'
+      };
+    }
+  };
+
+  function openSheet(type, d, returnTo) { sheet = { type: type, d: d || {}, returnTo: returnTo || null }; renderSheet(); }
+  function closeSheet() { sheet = null; $('#sheet-root').innerHTML = ''; }
+  function renderSheet() {
+    if (!sheet) return closeSheet();
+    var body = $('.sheet-body'), top = body ? body.scrollTop : 0;
+    var s = SHEETS[sheet.type](sheet.d);
+    $('#sheet-root').innerHTML = '<div class="shade" data-a="shade"><div class="sheet" role="dialog" aria-modal="true" aria-label="' + s.title + '">' +
+      '<div class="sheet-head"><h2>' + s.title + '</h2><button data-a="sheet-close">Cerrar</button></div>' +
+      '<div class="sheet-body">' + s.body + '</div><div class="sheet-foot">' + s.foot + '</div></div></div>';
+    var nb = $('.sheet-body'); if (nb) nb.scrollTop = top;
+    if (s.after) s.after();
+  }
+  function confirmSheet(title, text, ok, danger, fn) { confirmFn = fn; openSheet('confirm', { title: title, text: text, ok: ok, danger: danger }); }
+  var confirmFn = null;
+
+  function citaAmount(d) {
+    var svc = byId(S.services, d.serviceId), ret = byId(S.services, 'ret');
+    if (!svc) return '';
+    return String(svc.price + (svc.id === 'ret' ? 0 : d.diseno + (d.retirada && ret ? ret.price : 0)));
+  }
+  function startCita(clientId) {
+    var d = { clientId: clientId || '', fixed: !!clientId, serviceId: '', diseno: 0, retirada: false, amount: '', amountTouched: false, method: 'Efectivo', date: today(), note: '', stamp: true, stampTouched: false, fullAction: 'reset' };
+    openSheet('cita', d);
+  }
+
+  // ---------- Guardar hojas ----------
+  var SAVE = {
+    cliente: function (d) {
+      var name = String(d.name || '').trim();
+      if (!name) { toast('Escribe el nombre de la clienta.'); return; }
+      var c;
+      if (d.id) { c = client(d.id); c.name = name; c.phone = String(d.phone || '').trim(); c.insta = String(d.insta || '').trim(); }
+      else { c = { id: uid(), name: name, phone: String(d.phone || '').trim(), insta: String(d.insta || '').trim(), note: '', created: today() }; S.clients.push(c); }
+      save();
+      var back = sheet.returnTo;
+      if (back) { back.d.clientId = c.id; if (back.d.fromEvent) back.d.fixed = true; sheet = back; renderSheet(); render(); return; }
+      closeSheet(); go('ficha', c.id); toast(d.id ? 'Guardado' : 'Clienta añadida');
+    },
+
+    cita: function (d) {
+      if (!d.clientId) { d.error = 'Elige la clienta.'; return renderSheet(); }
+      var svc = byId(S.services, d.serviceId);
+      if (!svc) { d.error = 'Elige el servicio que le has hecho.'; return renderSheet(); }
+      var v = { id: uid(), clientId: d.clientId, date: d.date || today(), serviceId: svc.id, serviceName: svc.name, diseno: svc.id === 'ret' ? 0 : d.diseno, retirada: svc.id === 'ret' ? false : d.retirada, amount: num(d.amount), method: d.method, note: String(d.note || '').trim(), stamped: false, cardId: null };
+      var card = activeCard(d.clientId), msg = 'Cita guardada';
+      if (card && isFull(card)) {
+        if (d.fullAction === 'reset') card = closeCard(card, true);
+        else if (d.fullAction === 'new') card = closeCard(card, false);
+        else card = null;
+      } else if (d.stamp) {
+        if (!card) card = createCard(d.clientId);
+      } else card = null;
+      if (card) {
+        card.stamps++; v.stamped = true; v.cardId = card.id;
+        msg = '✦ Sello ' + card.stamps + ' de ' + card.total;
+        if (card.stamps === card.r1) msg += ' · 🎁 ' + card.g1;
+        if (card.stamps === card.total) msg += ' · ¡Tarjeta completa! 🎁 ' + card.g2;
+      }
+      if (d.eventKey) v.eventKey = d.eventKey;
+      S.visits.push(v); save(); closeSheet(); go('ficha', d.clientId); toast(msg);
+      if (d.eventKey && calOn()) {
+        var ek = d.eventKey.split('|');
+        api({ accion: 'terminar', id: ek[0], fecha: ek[1] }).then(function () {
+          var e = findEvent(d.eventKey); if (e) { e.terminada = true; writeLS(CACHEK, calCache); }
+        }, function () { toast('Cita guardada, pero no se ha podido marcar en el calendario.'); });
+      }
+    },
+
+    calConfig: function (d) {
+      var url = String(d.url || '').trim(), key = String(d.key || '').trim();
+      if (!/^https:\/\/script\.google\.com\/macros\/s\/[\w-]+\/exec$/.test(url)) { d.error = 'La dirección del script no es correcta.'; return renderSheet(); }
+      if (key.length < 20) { d.error = 'Pega la clave completa.'; return renderSheet(); }
+      var old = cal; cal = { url: url, key: key }; d.testing = true; d.error = ''; renderSheet();
+      var mon = mondayOf(today());
+      api({ accion: 'eventos', desde: mon, hasta: addDays(mon, 7) }).then(function (j) {
+        writeLS(CALK, cal); calCache = {}; calCache[mon] = { at: Date.now(), events: j.eventos || [] }; writeLS(CACHEK, calCache); calState.error = '';
+        closeSheet(); go('agenda'); toast('Calendario conectado');
+      }, function (e) {
+        cal = old; d.testing = false; d.error = calError(e); renderSheet();
+      });
+    },
+
+    nuevaCita: function (d) {
+      var cl = client(d.clientId), svc = byId(S.services, d.serviceId);
+      if (!cl) { d.error = 'Elige la clienta.'; return renderSheet(); }
+      if (!svc) { d.error = 'Elige el servicio.'; return renderSheet(); }
+      if (!d.fecha || !/^\d{2}:\d{2}$/.test(d.hora || '')) { d.error = 'Elige el día y la hora.'; return renderSheet(); }
+      var desc = ['Teléfono: ' + (cl.phone || '—'), 'Servicio: ' + svc.name, String(d.note || '').trim() ? 'Comentarios: ' + String(d.note).trim().slice(0, 300) : ''].filter(Boolean).join('\n');
+      d.saving = true; d.error = ''; renderSheet();
+      api({ accion: 'crear', titulo: '💅 ' + cl.name + ' · ' + svc.name, descripcion: desc, fecha: d.fecha, hora: d.hora, minutos: d.minutos }).then(function (j) {
+        var mon = mondayOf(d.fecha);
+        if (calCache[mon]) { calCache[mon].events.push(j.evento); writeLS(CACHEK, calCache); }
+        calState.day = d.fecha; closeSheet(); go('agenda'); fetchWeek(mon, true); toast('Cita guardada en tu calendario');
+      }, function (e) { d.saving = false; d.error = calError(e); renderSheet(); });
+    },
+
+    estilo: function (d) {
+      if (d.cardId) { var card = byId(S.cards, d.cardId); card.style = copyStyle(d.style); if (d.asDefault) S.settings.style = copyStyle(d.style); }
+      else S.settings.style = copyStyle(d.style);
+      save(); closeSheet(); render(); toast('Estilo guardado');
+    },
+
+    servicio: function (d) {
+      var name = String(d.name || '').trim(), cat = String(d.cat || '').trim() || 'Otros';
+      if (!name) { d.error = 'Escribe el nombre del servicio.'; return renderSheet(); }
+      if (d.id) { var s = byId(S.services, d.id); s.name = name; s.cat = cat; s.price = num(d.price); s.stamp = !!d.stamp; }
+      else S.services.push({ id: uid(), name: name, cat: cat, price: num(d.price), stamp: !!d.stamp });
+      save(); closeSheet(); render(); toast('Servicio guardado');
+    },
+
+    restaurar: function (d) {
+      try {
+        var data = cleanData(JSON.parse(d.json || ''));
+        if (!data) throw new Error();
+        confirmSheet('¿Restaurar la copia?', 'Se cambiarán todos los datos de este móvil por los de la copia (' + data.clients.length + ' clientas, ' + data.visits.length + ' citas).', 'Restaurar', true, function () {
+          S = data; save(); closeSheet(); go('inicio'); toast('Copia restaurada');
+        });
+      } catch (e) { d.error = 'Eso no parece una copia de la app. Comprueba que la has pegado entera.'; renderSheet(); }
+    }
+  };
+
+  // ---------- Acciones ----------
+  var ACT = {
+    tab: function (t) { query = ''; if (t.dataset.v === 'agenda') calState.day = today(); go(t.dataset.v); },
+    qmode: function (t) { qmode = t.dataset.v; render(); var q = $('#q'); if (q) q.focus(); },
+    'pick-day': function (t) { calState.day = t.dataset.v; render(); },
+    week: function (t) { calState.day = addDays(calState.day, +t.dataset.v); calState.error = ''; render(); },
+    'cal-refresh': function () { calState.error = ''; fetchWeek(mondayOf(calState.day), true); render(); },
+    'cal-config': function () { openSheet('calConfig', { url: cal.url || CAL_URL, key: cal.key || '' }); },
+    'cal-off': function () {
+      confirmSheet('¿Desconectar el calendario?', 'La app dejará de ver tus citas. Tu Google Calendar no cambia.', 'Desconectar', true, function () {
+        cal = {}; calCache = {}; writeLS(CALK, cal); writeLS(CACHEK, calCache); closeSheet(); render(); toast('Calendario desconectado');
+      });
+    },
+    'new-event': function () { var d = { clientId: '', serviceId: '', fecha: calState.day < today() ? today() : calState.day, hora: '', minutos: 120, note: '', hours: null }; openSheet('nuevaCita', d); loadHours(d); },
+    'ev-finish': function (t) {
+      var e = findEvent(t.dataset.key); if (!e) return;
+      var p = parseEv(e), cl = matchClient(p), svc = matchService(p.service);
+      var d = { clientId: cl ? cl.id : '', fixed: !!cl, fromEvent: true, eventKey: evKey(e), serviceId: svc ? svc.id : '', diseno: /elaborado/i.test(p.diseno) ? 7 : /medio/i.test(p.diseno) ? 3 : 0,
+        retirada: p.retirada, amount: '', amountTouched: false, method: 'Efectivo', date: e.fecha > today() ? today() : e.fecha, note: '', stamp: svc ? !!svc.stamp : true, stampTouched: false, fullAction: 'reset',
+        evInfo: [p.service, p.diseno ? 'diseño ' + p.diseno : '', p.retirada ? 'con retirada' : '', p.comentarios].filter(Boolean).join(' · ') };
+      d.amount = citaAmount(d);
+      if (cl) openSheet('cita', d);
+      else openSheet('cliente', { name: p.name, phone: p.phone, insta: '', fromEvent: true }, { type: 'cita', d: d, returnTo: null });
+    },
+    'open-client': function (t) { go('ficha', t.dataset.id); },
+    back: function () { go('clientas'); },
+    'new-client': function () { openSheet('cliente', { name: '', phone: '', insta: '' }); },
+    'edit-client': function (t) { var c = client(t.dataset.id); openSheet('cliente', { id: c.id, name: c.name, phone: c.phone, insta: c.insta || '' }); },
+    'client-delete': function () {
+      var c = client(sheet.d.id);
+      confirmSheet('¿Borrar a ' + esc(c.name) + '?', 'Se borrarán también sus citas, notas y tarjetas. No se puede deshacer.', 'Borrar', true, function () {
+        S.clients = S.clients.filter(function (x) { return x.id !== c.id; });
+        S.cards = S.cards.filter(function (x) { return x.clientId !== c.id; });
+        S.visits = S.visits.filter(function (x) { return x.clientId !== c.id; });
+        save(); closeSheet(); go('clientas'); toast('Clienta borrada');
+      });
+    },
+    cita: function (t) { startCita(t.dataset.id); },
+    'give-card': function (t) { var c = createCard(t.dataset.id); save(); render(); openSheet('qr', { clientId: c.clientId, passId: c.passId }); },
+    'show-qr': function (t) { var c = byId(S.cards, t.dataset.id); openSheet('qr', { clientId: c.clientId, passId: c.passId }); },
+    'style-card': function (t) { var c = byId(S.cards, t.dataset.id); openSheet('estilo', { cardId: c.id, style: copyStyle(c.style), asDefault: false }); },
+    'style-default': function () { openSheet('estilo', { cardId: null, style: copyStyle(S.settings.style) }); },
+    preset: function (t) { var p = PRESETS[+t.dataset.i]; sheet.d.style.bg = p.bg; sheet.d.style.ink = p.ink; renderSheet(); },
+    'reward-given': function (t) { var c = byId(S.cards, t.dataset.card); if (t.dataset.w === '1') c.r1Given = true; else c.r2Given = true; save(); render(); toast('Regalo marcado como entregado'); },
+    'full-reset': function (t) { closeCard(byId(S.cards, t.dataset.id), true); save(); render(); toast('Tarjeta puesta a 0'); },
+    'full-new': function (t) { var c = closeCard(byId(S.cards, t.dataset.id), false); save(); render(); openSheet('qr', { clientId: c.clientId, passId: c.passId }); },
+    'undo-stamp': function (t) {
+      var c = byId(S.cards, t.dataset.id); if (!c || c.stamps < 1) return;
+      confirmSheet('¿Quitar el último sello?', 'La tarjeta pasará de ' + c.stamps + ' a ' + (c.stamps - 1) + ' sellos. La cita sigue guardada.', 'Quitar sello', false, function () {
+        c.stamps--;
+        var vs = S.visits.filter(function (v) { return v.cardId === c.id && v.stamped; }).sort(function (a, b) { return a.date < b.date ? 1 : -1; });
+        if (vs[0]) { vs[0].stamped = false; vs[0].cardId = null; }
+        save(); closeSheet(); render(); toast('Sello quitado');
+      });
+    },
+    'delete-visit': function (t) {
+      var v = byId(S.visits, t.dataset.id), card = v.cardId ? byId(S.cards, v.cardId) : null, live = card && card.status === 'activa' && card.stamps > 0;
+      confirmSheet('¿Borrar esta cita?', esc(v.serviceName) + ' del ' + dShort(v.date) + ' (' + eur(v.amount) + ').' + (live ? ' También se quitará su sello de la tarjeta.' : ''), 'Borrar cita', true, function () {
+        if (live) card.stamps--;
+        S.visits = S.visits.filter(function (x) { return x.id !== v.id; });
+        save(); closeSheet(); render(); toast('Cita borrada');
+      });
+    },
+    'svc-new': function () { openSheet('servicio', { name: '', cat: '', price: '', stamp: true }); },
+    'svc-edit': function (t) { var s = byId(S.services, t.dataset.id); openSheet('servicio', { id: s.id, name: s.name, cat: s.cat, price: String(s.price).replace('.', ','), stamp: s.stamp }); },
+    'svc-delete': function () {
+      var s = byId(S.services, sheet.d.id);
+      confirmSheet('¿Borrar «' + esc(s.name) + '»?', 'Las citas ya guardadas con este servicio no cambian.', 'Borrar', true, function () {
+        S.services = S.services.filter(function (x) { return x.id !== s.id; }); save(); closeSheet(); render(); toast('Servicio borrado');
+      });
+    },
+    'bg-delete': function (t) {
+      var id = t.dataset.id;
+      confirmSheet('¿Borrar esta foto?', 'Las tarjetas que la usan se quedarán sin foto.', 'Borrar', true, function () {
+        S.backgrounds = S.backgrounds.filter(function (b) { return b.id !== id; });
+        S.cards.forEach(function (c) { if (c.style.img === id) c.style.img = null; });
+        if (S.settings.style.img === id) S.settings.style.img = null;
+        save(); closeSheet(); render();
+      });
+    },
+    'apply-active': function () {
+      var st = S.settings;
+      confirmSheet('¿Aplicar a las tarjetas activas?', 'Todas pasarán a tener ' + st.total + ' sellos, primer regalo en el sello ' + st.r1 + ' (' + esc(st.g1) + ') y ' + esc(st.g2) + ' al llenarla. Los sellos que ya tienen se mantienen.', 'Aplicar', false, function () {
+        S.cards.forEach(function (c) { if (c.status !== 'activa') return; c.total = st.total; c.r1 = st.r1; c.g1 = st.g1; c.g2 = st.g2; if (c.stamps > c.total) c.stamps = c.total; });
+        save(); closeSheet(); render(); toast('Tarjetas actualizadas');
+      });
+    },
+    'backup-copy': function () {
+      var txt = JSON.stringify(S);
+      if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(txt).then(function () { toast('Copia copiada. Pégala en Notas o en un WhatsApp a ti misma.'); }, function () { toast('No se ha podido copiar en este navegador.'); });
+      else toast('No se ha podido copiar en este navegador.');
+    },
+    'backup-restore': function () { openSheet('restaurar', {}); },
+    'clear-examples': function () {
+      confirmSheet('¿Borrar las clientas de ejemplo?', 'Se borrarán Lucía, Marta y Ana con sus citas y tarjetas. Tus clientas de verdad no se tocan.', 'Borrar ejemplos', true, function () {
+        var ids = S.clients.filter(function (c) { return c.ejemplo; }).map(function (c) { return c.id; });
+        S.clients = S.clients.filter(function (c) { return !c.ejemplo; });
+        S.cards = S.cards.filter(function (c) { return ids.indexOf(c.clientId) < 0; });
+        S.visits = S.visits.filter(function (v) { return ids.indexOf(v.clientId) < 0; });
+        save(); closeSheet(); go(nav.view === 'ficha' ? 'clientas' : nav.view); toast('Ejemplos borrados');
+      });
+    },
+    pick: function (t) {
+      var d = sheet.d, k = t.dataset.k, v = t.dataset.v;
+      if (k.indexOf('style.') === 0) { d.style[k.slice(6)] = v || null; return renderSheet(); }
+      if (k === 'diseno' || k === 'minutos') v = +v;
+      d[k] = v; d.error = '';
+      if (sheet.type === 'cita') {
+        if (k === 'serviceId' && !d.stampTouched) { var s = byId(S.services, v); d.stamp = !!(s && s.stamp); }
+        if (!d.amountTouched) d.amount = citaAmount(d);
+      }
+      renderSheet();
+    },
+    'sheet-close': function () { if (sheet && sheet.returnTo) { sheet = sheet.returnTo; return renderSheet(); } closeSheet(); },
+    'sheet-save': function () { SAVE[sheet.type](sheet.d); },
+    'confirm-ok': function () { var f = confirmFn; confirmFn = null; if (f) f(); },
+    shade: function (t, e) { if (e.target === t) ACT['sheet-close'](); }
+  };
+
+  document.addEventListener('click', function (e) {
+    var t = e.target.closest('[data-a]');
+    if (!t) return;
+    if (t.dataset.a === 'shade' && e.target !== t) return;
+    var fn = ACT[t.dataset.a];
+    if (fn) { e.preventDefault(); fn(t, e); }
+  });
+
+  var noteTimer;
+  document.addEventListener('input', function (e) {
+    var t = e.target;
+    if (t.dataset.in === 'q') { query = t.value; $('#client-list').innerHTML = clientList(); return; }
+    if (t.dataset.in === 'note') { var c = client(t.dataset.id); c.note = t.value; clearTimeout(noteTimer); noteTimer = setTimeout(save, 400); return; }
+    if (t.dataset.set && t.type !== 'select-one') { S.settings[t.dataset.set] = t.value; save(); return; }
+    if (t.dataset.f && sheet) {
+      var d = sheet.d, k = t.dataset.f;
+      if (t.type === 'checkbox' || t.type === 'select-one') return;
+      if (sheet.type === 'estilo' && (k === 'bg' || k === 'ink')) {
+        d.style[k] = t.value;
+        var card = d.cardId ? byId(S.cards, d.cardId) : null;
+        var sample = card || { stamps: 3, total: S.settings.total, r1: S.settings.r1, g1: S.settings.g1, g2: S.settings.g2 };
+        $('#style-preview').innerHTML = cardHTML(sample, card ? client(card.clientId) : null, d.style);
+        return;
+      }
+      d[k] = t.value;
+      if (k === 'amount') d.amountTouched = true;
+    }
+  });
+
+  document.addEventListener('change', function (e) {
+    var t = e.target;
+    if (t.dataset.set && t.type === 'select-one') {
+      var st = S.settings; st[t.dataset.set] = +t.value;
+      if (st.r1 >= st.total) st.r1 = Math.max(1, Math.floor(st.total / 2));
+      save(); render(); return;
+    }
+    if (t.dataset.file === 'bg' && t.files && t.files[0]) {
+      readBg(t.files[0], function (data) {
+        if (!data) return toast('No se ha podido abrir esa foto.');
+        var b = { id: uid(), data: data }; S.backgrounds.push(b); save();
+        sheet.d.style.img = b.id; renderSheet();
+      });
+      return;
+    }
+    if (!t.dataset.f || !sheet) return;
+    var d = sheet.d, k = t.dataset.f;
+    if (sheet.type === 'estilo' && (k === 'bg' || k === 'ink')) { d.style[k] = t.value; return renderSheet(); }
+    if (t.type === 'checkbox') {
+      d[k] = t.checked;
+      if (k === 'stamp') d.stampTouched = true;
+      if (k === 'retirada' && !d.amountTouched) d.amount = citaAmount(d);
+      if (sheet.type === 'cita') renderSheet();
+      return;
+    }
+    if (k === 'clientId') {
+      if (t.value === '__new') { var back = sheet; openSheet('cliente', { name: '', phone: '', insta: '' }, back); return; }
+      d.clientId = t.value; d.error = ''; renderSheet(); return;
+    }
+    d[k] = t.value;
+    if (sheet.type === 'nuevaCita' && k === 'fecha') { d.hours = null; d.hora = ''; renderSheet(); loadHours(d); }
+  });
+
+  // Huecos libres del día, con el mismo cálculo que la web de reservas.
+  function loadHours(d) {
+    if (!d.fecha) return;
+    var f = d.fecha;
+    fetch(cal.url + '?fecha=' + encodeURIComponent(f)).then(function (r) { return r.json(); }).then(function (j) {
+      if (sheet && sheet.d === d && d.fecha === f) { d.hours = j.horas || []; renderSheet(); }
+    }, function () {
+      if (sheet && sheet.d === d && d.fecha === f) { d.hours = []; renderSheet(); }
+    });
+  }
+
+  // Recorta la foto al tamaño de la imagen de sellos (1032×336) para que ocupe poco.
+  function readBg(file, cb) {
+    var fr = new FileReader();
+    fr.onload = function () {
+      var img = new Image();
+      img.onload = function () {
+        var W = 1032, H = 336, cv = document.createElement('canvas'); cv.width = W; cv.height = H;
+        var x = cv.getContext('2d'), sc = Math.max(W / img.width, H / img.height), w = img.width * sc, h = img.height * sc;
+        x.drawImage(img, (W - w) / 2, (H - h) / 2, w, h);
+        try { cb(cv.toDataURL('image/jpeg', 0.8)); } catch (e) { cb(null); }
+      };
+      img.onerror = function () { cb(null); };
+      img.src = fr.result;
+    };
+    fr.onerror = function () { cb(null); };
+    fr.readAsDataURL(file);
+  }
+
+  render();
+})();
+</script>
+
+</body>
+</html>
