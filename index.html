@@ -47,8 +47,11 @@
 }
 
 * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
-body { background: var(--bg); color: var(--text); font-family: var(--sans); font-weight: 400; font-size: 15px; line-height: 1.5; }
-#app { max-width: 560px; margin: 0 auto; padding: 18px 16px calc(96px + env(safe-area-inset-bottom, 0px)); }
+/* La página no se desplaza: solo #app. Así en el iPhone la barra de abajo no rebota ni se mueve al hacer scroll. */
+html, body { height: 100%; overflow: hidden; overscroll-behavior: none; }
+body { margin: 0; background: var(--bg); color: var(--text); font-family: var(--sans); font-weight: 400; font-size: 15px; line-height: 1.5; }
+#app { position: fixed; inset: 0; overflow-y: auto; overscroll-behavior: contain; -webkit-overflow-scrolling: touch;
+  padding: calc(18px + env(safe-area-inset-top, 0px)) max(16px, calc((100% - 528px) / 2)) calc(96px + env(safe-area-inset-bottom, 0px)); }
 h1, h2, h3 { font-family: var(--display); font-weight: 500; margin: 0; text-wrap: balance; }
 h1 { font-size: 32px; line-height: 1.1; }
 h2 { font-size: 20px; }
@@ -170,6 +173,17 @@ input[type="color"] { width: 48px; height: 36px; border: 1px solid var(--line); 
 .thumb { aspect-ratio: 1032 / 336; border-radius: 10px; background: var(--surface2) center / cover no-repeat; border: 2px solid transparent; font-size: 12px; color: var(--muted); display: grid; place-items: center; position: relative; }
 .thumb[aria-pressed="true"] { border-color: var(--accent); }
 .thumb .x { position: absolute; top: -8px; right: -8px; width: 24px; height: 24px; border-radius: 50%; background: var(--text); color: var(--bg); font-size: 14px; line-height: 24px; }
+/* Mis diseños: miniatura de tarjeta con su color, foto y sellos */
+.designs { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+.dsn { position: relative; border-radius: 14px; padding: 10px 12px; min-height: 78px; display: grid; align-content: space-between; gap: 8px; text-align: left; background: var(--dbg) center / cover no-repeat; color: var(--dfg); border: 2px solid transparent; overflow: hidden; }
+.dsn::before { content: ""; position: absolute; inset: 0; background: var(--dshade, transparent); }
+.dsn > * { position: relative; }
+.dsn b { font-weight: 500; font-size: 14px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.dsn .pips { display: flex; gap: 4px; }
+.dsn .pips i { width: 11px; height: 11px; border-radius: 50%; border: 1.5px solid var(--dink); }
+.dsn .pips i.on { background: var(--dink); }
+.dsn[aria-pressed="true"] { border-color: var(--accent); }
+.dsn.add { --dbg: transparent; --dfg: var(--muted); border: 1.5px dashed var(--line); place-items: center; align-content: center; font-size: 14px; }
 label.upload { border: 1.5px dashed var(--line); cursor: pointer; }
 label.upload input { position: absolute; opacity: 0; width: 1px; height: 1px; }
 .qrwrap { background: #fff; padding: 16px; border-radius: 18px; width: 252px; height: 252px; margin: 0 auto; display: grid; place-items: center; }
@@ -248,7 +262,7 @@ label.upload input { position: absolute; opacity: 0; width: 1px; height: 1px; }
         { id: 'oni-r', cat: 'Onicofagia', name: 'Mantenimiento · con reconstrucción', price: 20, stamp: true },
         { id: 'ret', cat: 'Otros', name: 'Retirada', price: 5, stamp: false }
       ],
-      clients: [], cards: [], visits: [], backgrounds: []
+      clients: [], cards: [], visits: [], backgrounds: [], designs: []
     };
   }
 
@@ -303,6 +317,8 @@ label.upload input { position: absolute; opacity: 0; width: 1px; height: 1px; }
       return o;
     });
     out.backgrounds = arr(d.backgrounds).filter(function (b) { return ID.test(b.id) && typeof b.data === 'string' && IMG.test(b.data); }).map(function (b) { return { id: b.id, data: b.data }; });
+    // Diseños guardados por Paula para elegir al dar o cambiar una tarjeta (las tarjetas guardan una copia del estilo)
+    out.designs = arr(d.designs).filter(function (x) { return ID.test(x.id); }).slice(0, 60).map(function (x) { var s = style(x); return { id: x.id, name: str(x.name, 30) || 'Diseño', bg: s.bg, ink: s.ink, img: s.img }; });
     return out;
   }
 
@@ -350,6 +366,14 @@ label.upload input { position: absolute; opacity: 0; width: 1px; height: 1px; }
     return 'rgba(' + parseInt(h.substr(0, 2), 16) + ',' + parseInt(h.substr(2, 2), 16) + ',' + parseInt(h.substr(4, 2), 16) + ',' + a + ')';
   }
   function copyStyle(st) { return { bg: st.bg, ink: st.ink, img: st.img || null }; }
+  function sameStyle(a, b) { return a.bg === b.bg && a.ink === b.ink && (a.img || null) === (b.img || null); }
+  // Miniatura de un diseño (botón). act/attrs: qué hace al pulsarla.
+  function designTile(x, attrs, pressed) {
+    var bg = x.img ? byId(S.backgrounds, x.img) : null, dark = isDark(x.bg), pips = '';
+    for (var i = 0; i < 5; i++) pips += '<i' + (i < 3 ? ' class="on"' : '') + '></i>';
+    return '<button class="dsn" ' + attrs + (pressed != null ? ' aria-pressed="' + pressed + '"' : '') + ' style="--dbg:' + (bg ? x.bg + ' url(' + bg.data + ')' : x.bg) + ';--dfg:' + (dark ? '#fff' : '#1f1f1f') + ';--dink:' + x.ink +
+      (bg ? ';--dshade:' + rgba(x.bg, 0.45) : '') + '"><b>' + esc(x.name || 'Diseño') + '</b><span class="pips">' + pips + '</span></button>';
+  }
   function faltan(n) { return 'Te ' + (n === 1 ? 'falta 1 sello' : 'faltan ' + n + ' sellos'); }
 
   // ---------- Tarjetas ----------
@@ -459,7 +483,7 @@ label.upload input { position: absolute; opacity: 0; width: 1px; height: 1px; }
     $('#app').innerHTML = v();
     renderTabs();
   }
-  function go(view, id) { nav.view = view; nav.id = id || null; render(); window.scrollTo(0, 0); }
+  function go(view, id) { nav.view = view; nav.id = id || null; render(); $('#app').scrollTop = 0; }
 
   function toast(msg) {
     var r = $('#toast-root'); r.innerHTML = '<div class="toast">' + esc(msg) + '</div>';
@@ -690,6 +714,10 @@ label.upload input { position: absolute; opacity: 0; width: 1px; height: 1px; }
             return '<button class="item" data-a="svc-edit" data-id="' + s.id + '"><span style="color:var(--accent);width:14px">' + (s.stamp ? '✦' : '') + '</span><div><div class="t">' + esc(s.name) + '</div></div><span class="num">' + eur(s.price) + '</span></button>';
           }).join('');
         }).join('') + '</div><p class="small muted" style="margin:0">✦ = cuenta para sello. Pulsa un servicio para cambiarlo.</p></div>' +
+        '<div class="sec"><h2>Mis diseños de tarjeta</h2><div class="designs">' + S.designs.map(function (x) {
+          return designTile(x, 'data-a="design-edit" data-id="' + x.id + '"');
+        }).join('') + '<button class="dsn add" data-a="design-new">+ Nuevo diseño</button></div>' +
+        '<p class="small muted" style="margin:0">Al darle tarjeta a una clienta eliges cuál lleva. Cambiar un diseño no cambia las tarjetas que ya lo tienen.</p></div>' +
         '<div class="sec"><h2>Fotos de fondo</h2>' + (S.backgrounds.length ? '<div class="thumbs">' + S.backgrounds.map(function (b) {
           return '<div class="thumb" style="background-image:url(' + b.data + ')"><button class="x" data-a="bg-delete" data-id="' + b.id + '" aria-label="Borrar foto">×</button></div>';
         }).join('') + '</div>' : '<p class="small muted" style="margin:0">Puedes subir fotos desde «Cambiar estilo» en cualquier tarjeta y saldrán aquí.</p>') + '</div>' +
@@ -781,6 +809,19 @@ label.upload input { position: absolute; opacity: 0; width: 1px; height: 1px; }
       };
     },
 
+    // Al dar una tarjeta, Paula elige el diseño para esta clienta
+    nueva: function (d) {
+      var cl = client(d.clientId), def = Object.assign({ name: 'El de siempre' }, S.settings.style);
+      return {
+        title: 'Tarjeta para ' + esc(first(cl && cl.name)),
+        body: '<p style="margin:0">Elige el diseño de su tarjeta. Luego podrás cambiarlo cuando quieras.</p>' +
+          '<div class="designs">' + designTile(def, 'data-a="give-design" data-id=""') + S.designs.map(function (x) {
+            return designTile(x, 'data-a="give-design" data-id="' + x.id + '"');
+          }).join('') + '</div>',
+        foot: '<button class="btn full" data-a="sheet-close">Cancelar</button>'
+      };
+    },
+
     qr: function (d) {
       var cl = client(d.clientId);
       return {
@@ -800,9 +841,14 @@ label.upload input { position: absolute; opacity: 0; width: 1px; height: 1px; }
     estilo: function (d) {
       var card = d.cardId ? byId(S.cards, d.cardId) : null, cl = card ? client(card.clientId) : null;
       var sample = card || { stamps: 3, total: S.settings.total, r1: S.settings.r1, g1: S.settings.g1, g2: S.settings.g2 };
+      var mine = d.design ? '' : S.designs.length ? '<div class="fld"><span>Mis diseños</span><div class="designs">' + S.designs.map(function (x) {
+        return designTile(x, 'data-a="use-design" data-id="' + x.id + '"', sameStyle(d.style, x));
+      }).join('') + '</div></div>' : '';
       return {
-        title: card ? 'Estilo de la tarjeta' : 'Estilo para tarjetas nuevas',
+        title: d.design ? (d.designId ? 'Editar diseño' : 'Nuevo diseño') : card ? 'Estilo de la tarjeta' : 'Estilo para tarjetas nuevas',
         body: '<div id="style-preview">' + cardHTML(sample, cl, d.style) + '</div>' +
+          (d.design ? '<label class="fld"><span>Nombre del diseño</span><input type="text" id="f-dname" data-f="name" value="' + esc(d.name || '') + '" maxlength="30" placeholder="Navidad, Verano, Flores…"></label>' : '') +
+          mine +
           '<div class="fld"><span>Estilos rápidos</span><div class="swatches">' + PRESETS.map(function (p, i) {
             return '<button class="swatch" data-a="preset" data-i="' + i + '" style="background:' + p.bg + ';color:' + (isDark(p.bg) ? '#fff' : '#1f1f1f') + '" aria-pressed="' + (d.style.bg === p.bg && d.style.ink === p.ink) + '"><i style="background:' + p.ink + '"></i>' + p.name + '</button>';
           }).join('') + '</div></div>' +
@@ -815,8 +861,12 @@ label.upload input { position: absolute; opacity: 0; width: 1px; height: 1px; }
           S.backgrounds.map(function (b) { return '<button class="thumb" style="background-image:url(' + b.data + ')" data-a="pick" data-k="style.img" data-v="' + b.id + '" aria-pressed="' + (d.style.img === b.id) + '" aria-label="Foto"></button>'; }).join('') +
           '<label class="thumb upload">+ Subir foto<input type="file" id="f-file" accept="image/*" data-file="bg"></label></div></div>' +
           (card ? '<label class="check"><input type="checkbox" id="f-def" data-f="asDefault"' + (d.asDefault ? ' checked' : '') + '><span>Usar también para las tarjetas nuevas</span></label>' : '') +
+          (d.design ? '' : '<label class="check"><input type="checkbox" id="f-savedsn" data-f="saveDesign"' + (d.saveDesign ? ' checked' : '') + '><span>Guardar también en «Mis diseños»</span></label>' +
+            (d.saveDesign ? '<label class="fld"><span>Nombre del diseño</span><input type="text" id="f-dname" data-f="name" value="' + esc(d.name || '') + '" maxlength="30" placeholder="Navidad, Verano, Flores…"></label>' : '')) +
+          (d.error ? '<p class="err" style="margin:0">' + esc(d.error) + '</p>' : '') +
           '<p class="small muted" style="margin:0">Google pone los textos con su propia letra y elige solo si van en blanco o negro según el color. El logo, el color y la imagen de los sellos son tuyos.</p>',
-        foot: '<button class="btn-main full" data-a="sheet-save">Guardar estilo</button>'
+        foot: '<button class="btn-main full" data-a="sheet-save">' + (d.design ? 'Guardar diseño' : 'Guardar estilo') + '</button>' +
+          (d.designId ? '<button class="btn danger full" data-a="design-delete">Borrar diseño</button>' : '')
       };
     },
 
@@ -986,6 +1036,14 @@ label.upload input { position: absolute; opacity: 0; width: 1px; height: 1px; }
     },
 
     estilo: function (d) {
+      var name = String(d.name || '').trim().slice(0, 30);
+      if (d.design || d.saveDesign) {
+        if (!name) { d.error = 'Ponle un nombre al diseño.'; return renderSheet(); }
+        var x = d.designId ? byId(S.designs, d.designId) : null;
+        if (!x) { x = { id: uid() }; S.designs.push(x); }
+        x.name = name; Object.assign(x, copyStyle(d.style));
+        if (d.design) { save(); closeSheet(); render(); return toast('Diseño guardado'); }
+      }
       if (d.cardId) { var card = byId(S.cards, d.cardId); card.style = copyStyle(d.style); if (d.asDefault) S.settings.style = copyStyle(d.style); }
       else S.settings.style = copyStyle(d.style);
       save(); closeSheet(); render(); toast('Estilo guardado');
@@ -1048,7 +1106,24 @@ label.upload input { position: absolute; opacity: 0; width: 1px; height: 1px; }
       });
     },
     cita: function (t) { startCita(t.dataset.id); },
-    'give-card': function (t) { var c = createCard(t.dataset.id); save(); render(); openSheet('qr', { clientId: c.clientId, passId: c.passId }); },
+    'give-card': function (t) {
+      if (S.designs.length) return openSheet('nueva', { clientId: t.dataset.id });
+      var c = createCard(t.dataset.id); save(); render(); openSheet('qr', { clientId: c.clientId, passId: c.passId });
+    },
+    'give-design': function (t) {
+      var x = t.dataset.id ? byId(S.designs, t.dataset.id) : null, c = createCard(sheet.d.clientId);
+      if (x) c.style = copyStyle(x);
+      save(); render(); openSheet('qr', { clientId: c.clientId, passId: c.passId });
+    },
+    'use-design': function (t) { var x = byId(S.designs, t.dataset.id); if (x) { sheet.d.style = copyStyle(x); renderSheet(); } },
+    'design-new': function () { openSheet('estilo', { design: true, designId: null, name: '', style: copyStyle(S.settings.style) }); },
+    'design-edit': function (t) { var x = byId(S.designs, t.dataset.id); openSheet('estilo', { design: true, designId: x.id, name: x.name, style: copyStyle(x) }); },
+    'design-delete': function () {
+      var x = byId(S.designs, sheet.d.designId);
+      confirmSheet('¿Borrar «' + esc(x.name) + '»?', 'Las tarjetas que ya lo tienen no cambian.', 'Borrar', true, function () {
+        S.designs = S.designs.filter(function (y) { return y.id !== x.id; }); save(); closeSheet(); render(); toast('Diseño borrado');
+      });
+    },
     'show-qr': function (t) { var c = byId(S.cards, t.dataset.id); openSheet('qr', { clientId: c.clientId, passId: c.passId }); },
     'style-card': function (t) { var c = byId(S.cards, t.dataset.id); openSheet('estilo', { cardId: c.id, style: copyStyle(c.style), asDefault: false }); },
     'style-default': function () { openSheet('estilo', { cardId: null, style: copyStyle(S.settings.style) }); },
@@ -1086,6 +1161,7 @@ label.upload input { position: absolute; opacity: 0; width: 1px; height: 1px; }
       confirmSheet('¿Borrar esta foto?', 'Las tarjetas que la usan se quedarán sin foto.', 'Borrar', true, function () {
         S.backgrounds = S.backgrounds.filter(function (b) { return b.id !== id; });
         S.cards.forEach(function (c) { if (c.style.img === id) c.style.img = null; });
+        S.designs.forEach(function (x) { if (x.img === id) x.img = null; });
         if (S.settings.style.img === id) S.settings.style.img = null;
         save(); closeSheet(); render();
       });
@@ -1180,7 +1256,7 @@ label.upload input { position: absolute; opacity: 0; width: 1px; height: 1px; }
       d[k] = t.checked;
       if (k === 'stamp') d.stampTouched = true;
       if (k === 'retirada' && !d.amountTouched) d.amount = citaAmount(d);
-      if (sheet.type === 'cita') renderSheet();
+      if (sheet.type === 'cita' || k === 'saveDesign') renderSheet();
       return;
     }
     if (k === 'clientId') {
