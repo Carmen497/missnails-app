@@ -182,6 +182,8 @@ input[type="color"] { width: 48px; height: 36px; border: 1px solid var(--line); 
 .dsn .pips { display: flex; gap: 4px; }
 .dsn .pips i { width: 11px; height: 11px; border-radius: 50%; border: 1.5px solid var(--dink); }
 .dsn .pips i.on { background: var(--dink); }
+.dsn .pips { align-items: center; }
+.dsn .pips small { margin-left: auto; font-size: 12px; opacity: .8; }
 .dsn[aria-pressed="true"] { border-color: var(--accent); }
 .dsn.add { --dbg: transparent; --dfg: var(--muted); border: 1.5px dashed var(--line); place-items: center; align-content: center; font-size: 14px; }
 label.upload { border: 1.5px dashed var(--line); cursor: pointer; }
@@ -307,8 +309,8 @@ label.upload input { position: absolute; opacity: 0; width: 1px; height: 1px; }
     });
     out.cards = arr(d.cards).filter(function (c) { return ID.test(c.id) && ID.test(c.clientId) && ID.test(c.passId); }).map(function (c) {
       var total = int(c.total, 10, 2, 20);
-      return { id: c.id, passId: c.passId, clientId: c.clientId, n: int(c.n, 1, 1, 999), stamps: int(c.stamps, 0, 0, total), total: total, r1: int(c.r1, 5, 1, total), g1: str(c.g1, 40), g2: str(c.g2, 40),
-        style: style(c.style), status: c.status === 'cerrada' ? 'cerrada' : 'activa', created: DATE.test(c.created) ? c.created : today(), closed: DATE.test(c.closed) ? c.closed : null, r1Given: !!c.r1Given, r2Given: !!c.r2Given };
+      return { id: c.id, passId: c.passId, clientId: c.clientId, n: int(c.n, 1, 1, 999), stamps: int(c.stamps, 0, 0, total), title: str(c.title, 40), total: total, r1: int(c.r1, 5, 1, total), g1: str(c.g1, 40), g2: str(c.g2, 40),
+        style: style(c.style), designId: ID.test(c.designId) ? c.designId : '', status: c.status === 'cerrada' ? 'cerrada' : 'activa', created: DATE.test(c.created) ? c.created : today(), closed: DATE.test(c.closed) ? c.closed : null, r1Given: !!c.r1Given, r2Given: !!c.r2Given };
     });
     out.visits = arr(d.visits).filter(function (v) { return ID.test(v.id) && ID.test(v.clientId) && DATE.test(v.date); }).map(function (v) {
       var o = { id: v.id, clientId: v.clientId, date: v.date, serviceId: ID.test(v.serviceId) ? v.serviceId : '', serviceName: str(v.serviceName, 60), diseno: int(v.diseno, 0, 0, 100), retirada: !!v.retirada,
@@ -317,8 +319,14 @@ label.upload input { position: absolute; opacity: 0; width: 1px; height: 1px; }
       return o;
     });
     out.backgrounds = arr(d.backgrounds).filter(function (b) { return ID.test(b.id) && typeof b.data === 'string' && IMG.test(b.data); }).map(function (b) { return { id: b.id, data: b.data }; });
-    // Diseños guardados por Paula para elegir al dar o cambiar una tarjeta (las tarjetas guardan una copia del estilo)
-    out.designs = arr(d.designs).filter(function (x) { return ID.test(x.id); }).slice(0, 60).map(function (x) { var s = style(x); return { id: x.id, name: str(x.name, 30) || 'Diseño', bg: s.bg, ink: s.ink, img: s.img }; });
+    out.settings.name = str(st.name, 30) || 'El de siempre';
+    // Diseños de tarjeta de Paula: estilo + frase + sellos + regalos. Cada tarjeta guarda su propia copia.
+    var so = out.settings;
+    out.designs = arr(d.designs).filter(function (x) { return ID.test(x.id); }).slice(0, 60).map(function (x) {
+      var s = style(x), total = int(x.total, so.total, 2, 20);
+      return { id: x.id, name: str(x.name, 30) || 'Diseño', title: x.title == null ? so.title : str(x.title, 40), total: total, r1: int(x.r1, Math.min(so.r1, total - 1), 1, total - 1),
+        g1: x.g1 == null ? so.g1 : str(x.g1, 40), g2: x.g2 == null ? so.g2 : str(x.g2, 40), bg: s.bg, ink: s.ink, img: s.img };
+    });
     return out;
   }
 
@@ -366,20 +374,37 @@ label.upload input { position: absolute; opacity: 0; width: 1px; height: 1px; }
     return 'rgba(' + parseInt(h.substr(0, 2), 16) + ',' + parseInt(h.substr(2, 2), 16) + ',' + parseInt(h.substr(4, 2), 16) + ',' + a + ')';
   }
   function copyStyle(st) { return { bg: st.bg, ink: st.ink, img: st.img || null }; }
-  function sameStyle(a, b) { return a.bg === b.bg && a.ink === b.ink && (a.img || null) === (b.img || null); }
-  // Miniatura de un diseño (botón). act/attrs: qué hace al pulsarla.
+  // Diseños: "El de siempre" vive en settings (id ''), el resto en S.designs.
+  var RULES = ['title', 'total', 'r1', 'g1', 'g2'];
+  function defDesign() { var s = S.settings; return { id: '', name: s.name || 'El de siempre', title: s.title, total: s.total, r1: s.r1, g1: s.g1, g2: s.g2, bg: s.style.bg, ink: s.style.ink, img: s.style.img }; }
+  function allDesigns() { return [defDesign()].concat(S.designs); }
+  function designById(id) { return id ? byId(S.designs, id) : defDesign(); }
+  function applyRules(card, x) {
+    RULES.forEach(function (k) { card[k] = x[k]; });
+    if (card.r1 >= card.total) card.r1 = Math.max(1, Math.floor(card.total / 2));
+    if (card.stamps > card.total) card.stamps = card.total;
+  }
+  // Borrador para la hoja de diseño/estilo
+  function draft(x, extra) { return Object.assign({ title: x.title || S.settings.title, total: x.total, r1: x.r1, g1: x.g1, g2: x.g2, style: copyStyle(x.style || x), error: '' }, extra); }
+  function stylePreview(d) {
+    var card = d.cardId ? byId(S.cards, d.cardId) : null;
+    var s = { stamps: card ? Math.min(card.stamps, d.total) : 3, title: d.title, total: d.total, r1: d.r1, g1: d.g1, g2: d.g2 };
+    return cardHTML(s, card ? client(card.clientId) : null, d.style);
+  }
+  function rulesText(x) { return x.total + ' sellos · ' + (x.g1 || 'Regalo') + ' en el ' + x.r1 + ' · ' + (x.g2 || 'Regalo') + ' al llenarla'; }
+  // Miniatura de un diseño (botón). attrs: qué hace al pulsarla.
   function designTile(x, attrs, pressed) {
     var bg = x.img ? byId(S.backgrounds, x.img) : null, dark = isDark(x.bg), pips = '';
     for (var i = 0; i < 5; i++) pips += '<i' + (i < 3 ? ' class="on"' : '') + '></i>';
     return '<button class="dsn" ' + attrs + (pressed != null ? ' aria-pressed="' + pressed + '"' : '') + ' style="--dbg:' + (bg ? x.bg + ' url(' + bg.data + ')' : x.bg) + ';--dfg:' + (dark ? '#fff' : '#1f1f1f') + ';--dink:' + x.ink +
-      (bg ? ';--dshade:' + rgba(x.bg, 0.45) : '') + '"><b>' + esc(x.name || 'Diseño') + '</b><span class="pips">' + pips + '</span></button>';
+      (bg ? ';--dshade:' + rgba(x.bg, 0.45) : '') + '"><b>' + esc(x.name || 'Diseño') + '</b><span class="pips">' + pips + '<small>' + x.total + ' sellos</small></span></button>';
   }
   function faltan(n) { return 'Te ' + (n === 1 ? 'falta 1 sello' : 'faltan ' + n + ' sellos'); }
 
   // ---------- Tarjetas ----------
   function newCardObj(D, clientId, n, passId) {
     var st = D.settings;
-    return { id: uid(), passId: passId, clientId: clientId, n: n, stamps: 0, total: st.total, r1: st.r1, g1: st.g1, g2: st.g2, style: copyStyle(st.style), status: 'activa', created: today(), closed: null, r1Given: false, r2Given: false };
+    return { id: uid(), passId: passId, clientId: clientId, n: n, stamps: 0, title: st.title, total: st.total, r1: st.r1, g1: st.g1, g2: st.g2, style: copyStyle(st.style), designId: '', status: 'activa', created: today(), closed: null, r1Given: false, r2Given: false };
   }
   function activeCard(clientId) { for (var i = 0; i < S.cards.length; i++) if (S.cards[i].clientId === clientId && S.cards[i].status === 'activa') return S.cards[i]; return null; }
   function clientCards(clientId) { return S.cards.filter(function (c) { return c.clientId === clientId; }); }
@@ -388,7 +413,7 @@ label.upload input { position: absolute; opacity: 0; width: 1px; height: 1px; }
   function closeCard(card, keepPass) {
     card.status = 'cerrada'; card.closed = today();
     var c = newCardObj(S, card.clientId, card.n + 1, keepPass ? card.passId : uid());
-    c.style = copyStyle(card.style);
+    applyRules(c, card); c.style = copyStyle(card.style); c.designId = card.designId;
     S.cards.push(c); return c;
   }
   function isFull(card) { return card.stamps >= card.total; }
@@ -452,7 +477,7 @@ label.upload input { position: absolute; opacity: 0; width: 1px; height: 1px; }
     var dark = isDark(st.bg), fg = dark ? '#ffffff' : '#1f1f1f', m = dark ? 'rgba(255,255,255,.66)' : 'rgba(31,31,31,.62)', nt = nextText(c);
     return '<div class="wcard" style="background:' + st.bg + ';color:' + fg + ';--m:' + m + '">' +
       '<div class="wc-head"><img src="' + LOGO + '" alt=""><span>missnails</span></div>' +
-      '<div class="wc-title">' + esc(S.settings.title) + '</div>' +
+      '<div class="wc-title">' + esc(c.title || S.settings.title) + '</div>' +
       '<div class="wc-fields"><div><small>Clienta</small><b>' + esc(cl ? first(cl.name) : 'Clienta') + '</b></div>' +
       '<div class="r"><small>Sellos</small><b>' + c.stamps + ' / ' + c.total + '</b></div>' +
       '<div class="wide"><small>' + esc(nt[0]) + '</small>' + esc(nt[1]) + '</div></div>' +
@@ -699,25 +724,16 @@ label.upload input { position: absolute; opacity: 0; width: 1px; height: 1px; }
       S.services.forEach(function (s) { (cats[s.cat] = cats[s.cat] || []).push(s); });
       var actives = S.cards.filter(function (c) { return c.status === 'activa'; }).length;
       return '<div class="stack"><h1>Ajustes</h1>' +
-        '<div class="sec"><h2>Tarjeta de fidelidad</h2><div class="panel">' +
-        '<label class="fld"><span>Frase de la tarjeta</span><input type="text" id="s-title" data-set="title" value="' + esc(st.title) + '" maxlength="40"></label>' +
-        '<div class="grid2"><label class="fld"><span>Sellos para llenarla</span><select id="s-total" data-set="total">' + totals + '</select></label>' +
-        '<label class="fld"><span>Primer regalo en el</span><select id="s-r1" data-set="r1">' + r1s + '</select></label></div>' +
-        '<label class="fld"><span>Primer regalo</span><input type="text" id="s-g1" data-set="g1" value="' + esc(st.g1) + '" maxlength="40"></label>' +
-        '<label class="fld"><span>Regalo al llenarla</span><input type="text" id="s-g2" data-set="g2" value="' + esc(st.g2) + '" maxlength="40"></label>' +
-        '<div class="between"><span class="fld"><span>Estilo para las tarjetas nuevas</span></span><button class="btn sm" data-a="style-default"><span class="dot" style="width:18px;height:18px;background:' + st.style.bg + ';border-color:' + st.style.ink + '"></span>Cambiar</button></div>' +
-        '<p class="small muted" style="margin:0">Las tarjetas que ya tienen las clientas no cambian solas.' + (actives ? ' <button class="link" data-a="apply-active">Aplicar sellos y regalos a las ' + actives + ' tarjetas activas</button>' : '') + '</p>' +
-        '</div></div>' +
+        '<div class="sec"><h2>Mis diseños de tarjeta</h2><div class="designs">' + allDesigns().map(function (x) {
+          return designTile(x, 'data-a="design-edit" data-id="' + x.id + '"');
+        }).join('') + '<button class="dsn add" data-a="design-new">+ Nuevo diseño</button></div>' +
+        '<p class="small muted" style="margin:0">Cada diseño lleva sus colores, su frase, sus sellos y sus regalos. Al darle tarjeta a una clienta eliges cuál lleva.</p></div>' +
         '<div class="sec"><div class="between"><h2>Servicios y precios</h2><button class="btn sm" data-a="svc-new">+ Añadir</button></div><div class="list">' +
         Object.keys(cats).map(function (k) {
           return '<div class="item" style="background:var(--surface2);padding:8px 14px"><span></span><span class="lbl">' + esc(k) + '</span><span></span></div>' + cats[k].map(function (s) {
             return '<button class="item" data-a="svc-edit" data-id="' + s.id + '"><span style="color:var(--accent);width:14px">' + (s.stamp ? '✦' : '') + '</span><div><div class="t">' + esc(s.name) + '</div></div><span class="num">' + eur(s.price) + '</span></button>';
           }).join('');
         }).join('') + '</div><p class="small muted" style="margin:0">✦ = cuenta para sello. Pulsa un servicio para cambiarlo.</p></div>' +
-        '<div class="sec"><h2>Mis diseños de tarjeta</h2><div class="designs">' + S.designs.map(function (x) {
-          return designTile(x, 'data-a="design-edit" data-id="' + x.id + '"');
-        }).join('') + '<button class="dsn add" data-a="design-new">+ Nuevo diseño</button></div>' +
-        '<p class="small muted" style="margin:0">Al darle tarjeta a una clienta eliges cuál lleva. Cambiar un diseño no cambia las tarjetas que ya lo tienen.</p></div>' +
         '<div class="sec"><h2>Fotos de fondo</h2>' + (S.backgrounds.length ? '<div class="thumbs">' + S.backgrounds.map(function (b) {
           return '<div class="thumb" style="background-image:url(' + b.data + ')"><button class="x" data-a="bg-delete" data-id="' + b.id + '" aria-label="Borrar foto">×</button></div>';
         }).join('') + '</div>' : '<p class="small muted" style="margin:0">Puedes subir fotos desde «Cambiar estilo» en cualquier tarjeta y saldrán aquí.</p>') + '</div>' +
@@ -811,11 +827,11 @@ label.upload input { position: absolute; opacity: 0; width: 1px; height: 1px; }
 
     // Al dar una tarjeta, Paula elige el diseño para esta clienta
     nueva: function (d) {
-      var cl = client(d.clientId), def = Object.assign({ name: 'El de siempre' }, S.settings.style);
+      var cl = client(d.clientId);
       return {
         title: 'Tarjeta para ' + esc(first(cl && cl.name)),
         body: '<p style="margin:0">Elige el diseño de su tarjeta. Luego podrás cambiarlo cuando quieras.</p>' +
-          '<div class="designs">' + designTile(def, 'data-a="give-design" data-id=""') + S.designs.map(function (x) {
+          '<div class="designs">' + allDesigns().map(function (x) {
             return designTile(x, 'data-a="give-design" data-id="' + x.id + '"');
           }).join('') + '</div>',
         foot: '<button class="btn full" data-a="sheet-close">Cancelar</button>'
@@ -838,18 +854,28 @@ label.upload input { position: absolute; opacity: 0; width: 1px; height: 1px; }
       };
     },
 
+    // Dos usos: d.design → editar un diseño (estilo + frase + sellos + regalos); d.cardId → elegir/ajustar el diseño de una tarjeta
     estilo: function (d) {
-      var card = d.cardId ? byId(S.cards, d.cardId) : null, cl = card ? client(card.clientId) : null;
-      var sample = card || { stamps: 3, total: S.settings.total, r1: S.settings.r1, g1: S.settings.g1, g2: S.settings.g2 };
-      var mine = d.design ? '' : S.designs.length ? '<div class="fld"><span>Mis diseños</span><div class="designs">' + S.designs.map(function (x) {
-        return designTile(x, 'data-a="use-design" data-id="' + x.id + '"', sameStyle(d.style, x));
-      }).join('') + '</div></div>' : '';
+      var card = d.cardId ? byId(S.cards, d.cardId) : null;
+      var totals = '', r1s = '';
+      for (var i = 4; i <= 12; i++) totals += '<option value="' + i + '"' + (i === d.total ? ' selected' : '') + '>' + i + ' sellos</option>';
+      for (var j = 1; j < d.total; j++) r1s += '<option value="' + j + '"' + (j === d.r1 ? ' selected' : '') + '>Sello ' + j + '</option>';
+      var nameFld = '<label class="fld"><span>Nombre del diseño</span><input type="text" id="f-dname" data-f="name" value="' + esc(d.name || '') + '" maxlength="30" placeholder="Navidad, Verano, Flores…"></label>';
+      var rules = d.design ?
+        '<div class="panel">' + nameFld +
+        '<label class="fld"><span>Frase de la tarjeta</span><input type="text" id="f-title" data-f="title" value="' + esc(d.title) + '" maxlength="40"></label>' +
+        '<div class="grid2"><label class="fld"><span>Sellos para llenarla</span><select id="f-total" data-f="total">' + totals + '</select></label>' +
+        '<label class="fld"><span>Primer regalo en el</span><select id="f-r1" data-f="r1">' + r1s + '</select></label></div>' +
+        '<label class="fld"><span>Primer regalo</span><input type="text" id="f-g1" data-f="g1" value="' + esc(d.g1) + '" maxlength="40"></label>' +
+        '<label class="fld"><span>Regalo al llenarla</span><input type="text" id="f-g2" data-f="g2" value="' + esc(d.g2) + '" maxlength="40"></label></div>'
+        : '<div class="fld"><span>Diseño</span><div class="designs">' + allDesigns().map(function (x) {
+          return designTile(x, 'data-a="use-design" data-id="' + x.id + '"', d.designId === x.id);
+        }).join('') + '</div><span class="small muted">' + esc(rulesText(d)) + '</span></div>';
+      var active = d.design && d.designId != null ? S.cards.filter(function (c) { return c.status === 'activa' && (c.designId || '') === d.designId; }).length : 0;
       return {
-        title: d.design ? (d.designId ? 'Editar diseño' : 'Nuevo diseño') : card ? 'Estilo de la tarjeta' : 'Estilo para tarjetas nuevas',
-        body: '<div id="style-preview">' + cardHTML(sample, cl, d.style) + '</div>' +
-          (d.design ? '<label class="fld"><span>Nombre del diseño</span><input type="text" id="f-dname" data-f="name" value="' + esc(d.name || '') + '" maxlength="30" placeholder="Navidad, Verano, Flores…"></label>' : '') +
-          mine +
-          '<div class="fld"><span>Estilos rápidos</span><div class="swatches">' + PRESETS.map(function (p, i) {
+        title: d.design ? (d.designId == null ? 'Nuevo diseño' : 'Editar diseño') : 'Diseño de la tarjeta',
+        body: '<div id="style-preview">' + stylePreview(d) + '</div>' + rules +
+          '<div class="fld"><span>Colores rápidos</span><div class="swatches">' + PRESETS.map(function (p, i) {
             return '<button class="swatch" data-a="preset" data-i="' + i + '" style="background:' + p.bg + ';color:' + (isDark(p.bg) ? '#fff' : '#1f1f1f') + '" aria-pressed="' + (d.style.bg === p.bg && d.style.ink === p.ink) + '"><i style="background:' + p.ink + '"></i>' + p.name + '</button>';
           }).join('') + '</div></div>' +
           '<div class="grid2"><label class="fld"><span>Color de la tarjeta</span><span class="colorrow"><input type="color" id="f-bg" data-f="bg" value="' + d.style.bg + '"><span class="small muted">El que quieras</span></span></label>' +
@@ -860,13 +886,12 @@ label.upload input { position: absolute; opacity: 0; width: 1px; height: 1px; }
           '<button class="thumb" data-a="pick" data-k="style.img" data-v="" aria-pressed="' + !d.style.img + '">Sin foto</button>' +
           S.backgrounds.map(function (b) { return '<button class="thumb" style="background-image:url(' + b.data + ')" data-a="pick" data-k="style.img" data-v="' + b.id + '" aria-pressed="' + (d.style.img === b.id) + '" aria-label="Foto"></button>'; }).join('') +
           '<label class="thumb upload">+ Subir foto<input type="file" id="f-file" accept="image/*" data-file="bg"></label></div></div>' +
-          (card ? '<label class="check"><input type="checkbox" id="f-def" data-f="asDefault"' + (d.asDefault ? ' checked' : '') + '><span>Usar también para las tarjetas nuevas</span></label>' : '') +
-          (d.design ? '' : '<label class="check"><input type="checkbox" id="f-savedsn" data-f="saveDesign"' + (d.saveDesign ? ' checked' : '') + '><span>Guardar también en «Mis diseños»</span></label>' +
-            (d.saveDesign ? '<label class="fld"><span>Nombre del diseño</span><input type="text" id="f-dname" data-f="name" value="' + esc(d.name || '') + '" maxlength="30" placeholder="Navidad, Verano, Flores…"></label>' : '')) +
+          (active ? '<label class="check"><input type="checkbox" id="f-upd" data-f="updateActive"' + (d.updateActive ? ' checked' : '') + '><span>Cambiar también las ' + active + ' tarjetas activas que llevan este diseño (conservan sus sellos)</span></label>' : '') +
+          (card ? '<label class="check"><input type="checkbox" id="f-savedsn" data-f="saveDesign"' + (d.saveDesign ? ' checked' : '') + '><span>Guardar estos colores como diseño nuevo</span></label>' + (d.saveDesign ? nameFld : '') : '') +
           (d.error ? '<p class="err" style="margin:0">' + esc(d.error) + '</p>' : '') +
           '<p class="small muted" style="margin:0">Google pone los textos con su propia letra y elige solo si van en blanco o negro según el color. El logo, el color y la imagen de los sellos son tuyos.</p>',
-        foot: '<button class="btn-main full" data-a="sheet-save">' + (d.design ? 'Guardar diseño' : 'Guardar estilo') + '</button>' +
-          (d.designId ? '<button class="btn danger full" data-a="design-delete">Borrar diseño</button>' : '')
+        foot: '<button class="btn-main full" data-a="sheet-save">' + (d.design ? 'Guardar diseño' : 'Guardar') + '</button>' +
+          (d.design && d.designId ? '<button class="btn danger full" data-a="design-delete">Borrar diseño</button>' : '')
       };
     },
 
@@ -1037,16 +1062,23 @@ label.upload input { position: absolute; opacity: 0; width: 1px; height: 1px; }
 
     estilo: function (d) {
       var name = String(d.name || '').trim().slice(0, 30);
-      if (d.design || d.saveDesign) {
-        if (!name) { d.error = 'Ponle un nombre al diseño.'; return renderSheet(); }
-        var x = d.designId ? byId(S.designs, d.designId) : null;
-        if (!x) { x = { id: uid() }; S.designs.push(x); }
-        x.name = name; Object.assign(x, copyStyle(d.style));
-        if (d.design) { save(); closeSheet(); render(); return toast('Diseño guardado'); }
+      var rules = { title: String(d.title || '').trim().slice(0, 40), total: d.total, r1: d.r1, g1: String(d.g1 || '').trim().slice(0, 40), g2: String(d.g2 || '').trim().slice(0, 40) };
+      if ((d.design || d.saveDesign) && !name) { d.error = 'Ponle un nombre al diseño.'; return renderSheet(); }
+      if (d.design) {
+        var id = d.designId;
+        if (id === '') { var st = S.settings; st.name = name; RULES.forEach(function (k) { st[k] = rules[k]; }); st.style = copyStyle(d.style); }
+        else {
+          var x = id ? byId(S.designs, id) : null;
+          if (!x) { x = { id: uid() }; S.designs.push(x); id = x.id; }
+          Object.assign(x, rules, copyStyle(d.style), { name: name });
+        }
+        if (d.updateActive) S.cards.forEach(function (c) { if (c.status === 'activa' && (c.designId || '') === id) { applyRules(c, rules); c.style = copyStyle(d.style); } });
+        save(); closeSheet(); render(); return toast('Diseño guardado');
       }
-      if (d.cardId) { var card = byId(S.cards, d.cardId); card.style = copyStyle(d.style); if (d.asDefault) S.settings.style = copyStyle(d.style); }
-      else S.settings.style = copyStyle(d.style);
-      save(); closeSheet(); render(); toast('Estilo guardado');
+      var card = byId(S.cards, d.cardId);
+      applyRules(card, rules); card.style = copyStyle(d.style); card.designId = d.designId || '';
+      if (d.saveDesign) { var nx = Object.assign({ id: uid(), name: name }, rules, copyStyle(d.style)); S.designs.push(nx); card.designId = nx.id; }
+      save(); closeSheet(); render(); toast('Tarjeta guardada');
     },
 
     servicio: function (d) {
@@ -1111,13 +1143,13 @@ label.upload input { position: absolute; opacity: 0; width: 1px; height: 1px; }
       var c = createCard(t.dataset.id); save(); render(); openSheet('qr', { clientId: c.clientId, passId: c.passId });
     },
     'give-design': function (t) {
-      var x = t.dataset.id ? byId(S.designs, t.dataset.id) : null, c = createCard(sheet.d.clientId);
-      if (x) c.style = copyStyle(x);
+      var x = designById(t.dataset.id) || defDesign(), c = createCard(sheet.d.clientId);
+      applyRules(c, x); c.style = copyStyle(x); c.designId = x.id;
       save(); render(); openSheet('qr', { clientId: c.clientId, passId: c.passId });
     },
-    'use-design': function (t) { var x = byId(S.designs, t.dataset.id); if (x) { sheet.d.style = copyStyle(x); renderSheet(); } },
-    'design-new': function () { openSheet('estilo', { design: true, designId: null, name: '', style: copyStyle(S.settings.style) }); },
-    'design-edit': function (t) { var x = byId(S.designs, t.dataset.id); openSheet('estilo', { design: true, designId: x.id, name: x.name, style: copyStyle(x) }); },
+    'use-design': function (t) { var x = designById(t.dataset.id); if (x) { Object.assign(sheet.d, draft(x, { designId: x.id })); renderSheet(); } },
+    'design-new': function () { openSheet('estilo', draft(defDesign(), { design: true, designId: null, name: '' })); },
+    'design-edit': function (t) { var x = designById(t.dataset.id); openSheet('estilo', draft(x, { design: true, designId: x.id, name: x.name })); },
     'design-delete': function () {
       var x = byId(S.designs, sheet.d.designId);
       confirmSheet('¿Borrar «' + esc(x.name) + '»?', 'Las tarjetas que ya lo tienen no cambian.', 'Borrar', true, function () {
@@ -1125,8 +1157,7 @@ label.upload input { position: absolute; opacity: 0; width: 1px; height: 1px; }
       });
     },
     'show-qr': function (t) { var c = byId(S.cards, t.dataset.id); openSheet('qr', { clientId: c.clientId, passId: c.passId }); },
-    'style-card': function (t) { var c = byId(S.cards, t.dataset.id); openSheet('estilo', { cardId: c.id, style: copyStyle(c.style), asDefault: false }); },
-    'style-default': function () { openSheet('estilo', { cardId: null, style: copyStyle(S.settings.style) }); },
+    'style-card': function (t) { var c = byId(S.cards, t.dataset.id); openSheet('estilo', draft(c, { cardId: c.id, designId: c.designId || '' })); },
     preset: function (t) { var p = PRESETS[+t.dataset.i]; sheet.d.style.bg = p.bg; sheet.d.style.ink = p.ink; renderSheet(); },
     'reward-given': function (t) { var c = byId(S.cards, t.dataset.card); if (t.dataset.w === '1') c.r1Given = true; else c.r2Given = true; save(); render(); toast('Regalo marcado como entregado'); },
     'full-reset': function (t) { closeCard(byId(S.cards, t.dataset.id), true); save(); render(); toast('Tarjeta puesta a 0'); },
@@ -1166,13 +1197,7 @@ label.upload input { position: absolute; opacity: 0; width: 1px; height: 1px; }
         save(); closeSheet(); render();
       });
     },
-    'apply-active': function () {
-      var st = S.settings;
-      confirmSheet('¿Aplicar a las tarjetas activas?', 'Todas pasarán a tener ' + st.total + ' sellos, primer regalo en el sello ' + st.r1 + ' (' + esc(st.g1) + ') y ' + esc(st.g2) + ' al llenarla. Los sellos que ya tienen se mantienen.', 'Aplicar', false, function () {
-        S.cards.forEach(function (c) { if (c.status !== 'activa') return; c.total = st.total; c.r1 = st.r1; c.g1 = st.g1; c.g2 = st.g2; if (c.stamps > c.total) c.stamps = c.total; });
-        save(); closeSheet(); render(); toast('Tarjetas actualizadas');
-      });
-    },
+
     'backup-copy': function () {
       var txt = JSON.stringify(S);
       if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(txt).then(function () { toast('Copia copiada. Pégala en Notas o en un WhatsApp a ti misma.'); }, function () { toast('No se ha podido copiar en este navegador.'); });
@@ -1222,14 +1247,9 @@ label.upload input { position: absolute; opacity: 0; width: 1px; height: 1px; }
     if (t.dataset.f && sheet) {
       var d = sheet.d, k = t.dataset.f;
       if (t.type === 'checkbox' || t.type === 'select-one') return;
-      if (sheet.type === 'estilo' && (k === 'bg' || k === 'ink')) {
-        d.style[k] = t.value;
-        var card = d.cardId ? byId(S.cards, d.cardId) : null;
-        var sample = card || { stamps: 3, total: S.settings.total, r1: S.settings.r1, g1: S.settings.g1, g2: S.settings.g2 };
-        $('#style-preview').innerHTML = cardHTML(sample, card ? client(card.clientId) : null, d.style);
-        return;
-      }
+      if (sheet.type === 'estilo' && (k === 'bg' || k === 'ink')) { d.style[k] = t.value; $('#style-preview').innerHTML = stylePreview(d); return; }
       d[k] = t.value;
+      if (sheet.type === 'estilo') { $('#style-preview').innerHTML = stylePreview(d); return; }
       if (k === 'amount') d.amountTouched = true;
     }
   });
@@ -1252,6 +1272,10 @@ label.upload input { position: absolute; opacity: 0; width: 1px; height: 1px; }
     if (!t.dataset.f || !sheet) return;
     var d = sheet.d, k = t.dataset.f;
     if (sheet.type === 'estilo' && (k === 'bg' || k === 'ink')) { d.style[k] = t.value; return renderSheet(); }
+    if (sheet.type === 'estilo' && (k === 'total' || k === 'r1')) {
+      d[k] = +t.value; if (d.r1 >= d.total) d.r1 = Math.max(1, Math.floor(d.total / 2));
+      return renderSheet();
+    }
     if (t.type === 'checkbox') {
       d[k] = t.checked;
       if (k === 'stamp') d.stampTouched = true;
